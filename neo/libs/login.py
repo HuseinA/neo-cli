@@ -10,7 +10,7 @@ auth_url = 'https://keystone.wjv-1.neo.id:443/v3'
 user_domain_name='neo.id'
 
 def get_username():
-    return raw_input("usename: ")
+    return input("usename: ")
 
 def get_password():
     return getpass.getpass("password: ")
