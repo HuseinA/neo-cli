@@ -47,5 +47,3 @@ def main():
     command = [command[1] for command in neo.cli if command[0] != 'Base'][0]
     command = command(options, command_args)
     command.execute()
-  else:
-    print subprocess.check_output(['neo','--help'])

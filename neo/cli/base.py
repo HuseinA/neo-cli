@@ -14,5 +14,5 @@ class Base(object):
 
     def execute(self):
         """Execute the commands"""
-        print 'test'
+
         raise NotImplementedError
