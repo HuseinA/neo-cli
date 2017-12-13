@@ -18,7 +18,7 @@ Run 'neo COMMAND --help' for more information on a command.
 from inspect import getmembers, isclass
 from docopt import docopt
 # from docopt import DocoptExit
-from . import __version__ as VERSION
+from neo import __version__ as VERSION
 import subprocess
 
 def main():
@@ -47,3 +47,6 @@ def main():
     command = [command[1] for command in neo.cli if command[0] != 'Base'][0]
     command = command(options, command_args)
     command.execute()
+
+if __name__ == '__main__':
+    main()
