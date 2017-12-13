@@ -59,7 +59,7 @@ setup(
     },
     entry_points = {
         'console_scripts': [
-            'neo=neo.commands:main',
+            'neo=cli:main',
         ],
     },
     cmdclass = {'test': RunTests},
