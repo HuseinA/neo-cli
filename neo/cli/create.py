@@ -18,7 +18,7 @@ usage: create <templates>
 
 Log in to Neo Cloud
 	"""
-		
+	
 	def execute(self):
 		templates = self.args['<templates>']
 
