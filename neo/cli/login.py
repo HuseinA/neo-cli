@@ -2,9 +2,9 @@ import click
 import getpass
 import subprocess
 from json import dumps
-from neo.cli.base import Base
+from neo.clis.base import Base
 from docopt import docopt
-from neo.cli import store
+from neo.clis import store
 from neo.libs import login as login_lib
 
 class Login(Base):

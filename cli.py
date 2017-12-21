@@ -9,7 +9,8 @@ Options:
 Commands:
   login       Log in to a NEO Cloud 
   logout      Log out from a NEO Cloud
-  create      Deploy you service to NEO Cloud
+  create      Deploy your service to NEO Cloud
+  vm          Manage virtual machine
 
 Run 'neo COMMAND --help' for more information on a command.
 """
@@ -29,6 +30,7 @@ def main():
   command_name=""
   args=""
   command_args=""
+  command_args2 =""
 
   for (k, v) in options.items(): 
     if k== '<command>' and v:
@@ -40,12 +42,17 @@ def main():
     command_args = None
   else:
     command_args =  args[0]
+    if len(args)>1:
+      command_args2 = args[1]
 
   if hasattr(neo.cli, command_name) and command_name!='':
-    module = getattr(neo.cli, command_name)
+    module = getattr(neo.clis, command_name)
     neo.cli = getmembers(module, isclass)
     command = [command[1] for command in neo.cli if command[0] != 'Base'][0]
-    command = command(options, command_args)
+    if command_args2!='':
+      command = command(options, command_args, command_args2)
+    else:
+      command = command(options, command_args)
     command.execute()
 
 if __name__ == '__main__':
