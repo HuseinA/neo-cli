@@ -46,7 +46,7 @@ def main():
       command_args2 = args[1]
 
   if hasattr(neo.cli, command_name) and command_name!='':
-    module = getattr(neo.clis, command_name)
+    module = getattr(neo.cli, command_name)
     neo.cli = getmembers(module, isclass)
     command = [command[1] for command in neo.cli if command[0] != 'Base'][0]
     if command_args2!='':
