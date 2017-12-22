@@ -7,12 +7,13 @@ from docopt import docopt
 from neo.clis import store
 from neo.libs import login as login_lib
 
-class Login(Base):
+class Logout(Base):
 	"""
 usage: login
 
-Log in to Neo Cloud
+Log out from Neo Cloud
 	"""
 
 	def execute(self):
-		login_lib.do_login()
+		login_lib.do_logout()
+
