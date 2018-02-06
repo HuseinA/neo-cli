@@ -5,7 +5,7 @@ from json import dumps
 from .base import Base
 from docopt import docopt
 import requests
-from neo.cli import store
+from neo.clis import store
 from neo.libs import login as login_lib
 import os
 
