@@ -10,7 +10,7 @@ auth_url = 'https://keystone.wjv-1.neo.id:443/v3'
 user_domain_name='neo.id'
 
 def get_username():
-    return raw_input("usename: ")
+    return input("usename: ")
 
 def get_password():
     return getpass.getpass("password: ")
@@ -78,12 +78,13 @@ def do_login():
                 token = sess.get_token()
                 add_token(token)
                 load_env_file()
-                print "Login Success"
-    except Exception, e:
-        print "Login Failed"
+                print("Login Success")
+    except Exception as e:
+        print(e)
+        print("Login Failed")
 
 def  do_logout():
     if check_env():
         with open("{}/.neo.env".format(home)) as envfile:
             os.remove("{}/.neo.env".format(home))    
-            print "Logout Success"
+            print("Logout Success")

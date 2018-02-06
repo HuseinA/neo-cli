@@ -24,7 +24,7 @@ import subprocess
 
 def main():
   """Main CLI entrypoint."""
-  import neo.cli
+  import neo.clis
   options = docopt(__doc__, version=VERSION, options_first=True)
   # Retrieve the command to execute.
   command_name=""
@@ -45,10 +45,10 @@ def main():
     if len(args)>1:
       command_args2 = args[1]
 
-  if hasattr(neo.cli, command_name) and command_name!='':
-    module = getattr(neo.cli, command_name)
-    neo.cli = getmembers(module, isclass)
-    command = [command[1] for command in neo.cli if command[0] != 'Base'][0]
+  if hasattr(neo.clis, command_name) and command_name!='':
+    module = getattr(neo.clis, command_name)
+    neo.clis = getmembers(module, isclass)
+    command = [command[1] for command in neo.clis if command[0] != 'Base'][0]
     if command_args2!='':
       command = command(options, command_args, command_args2)
     else:
