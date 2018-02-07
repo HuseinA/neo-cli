@@ -8,14 +8,10 @@ import requests
 from neo.clis import store
 from neo.libs import login as login_lib
 import os
-from heatclient.client import Client
-from heatclient.common import template_utils
 import re
 
 from novaclient import client as nova_client
-
-
-home = os.path.expanduser("~")
+from tabulate import tabulate
 
 
 class Vm(Base):
@@ -37,38 +33,33 @@ Run 'neo vm COMMAND --help' for more information on a command.
 
     def execute(self):
         if self.args['ls']:
-            if not login_lib.check_env():
-                print('you are not authorized.')
-            else:
-                login_lib.load_env_file()
-                heat_url = 'https://heat.wjv-1.neo.id:8004/v1/%s' % os.environ.get(
-                    "OS_PROJECT_ID")
-                heat = Client('1', endpoint=heat_url,
-                              token=os.environ.get("OS_TOKEN"))
-                instances = [instance for instance in heat.stacks.list()]
-                for instance in instances:
-                    print(" -> ({}) {}".format(instance.id, instance.name))
-                    print(instance.to_dict())
-                if len(instances) == 0:
-                    print("There is no virtual machine;")
+            compute = nova_client.Client(2, session=login_lib.get_session())
+            instances = [instance for instance in compute.servers.list()]
+            data_instance = [[instance.id, instance.name]
+                             for instance in instances]
+            print(tabulate(data_instance, headers=[
+                  "ID", "Name"], tablefmt="grid"))
         if self.args['rm']:
-            if not login_lib.check_env():
-                print('you are not authorized.')
-            else:
-                try:
-                    if self.args['<id_instance>'] == '-h':
-                        subprocess.check_output(['neo vm', '--help'])
-                    else:
-                        login_lib.load_env_file()
-                        heat_url = 'https://heat.wjv-1.neo.id:8004/v1/%s' % os.environ.get(
-                            "OS_PROJECT_ID")
-                        heat = Client('1', endpoint=heat_url,
-                                      token=os.environ.get("OS_TOKEN"))
-                        stack_id = self.args['<id_instance>']
-                        heat.stacks.delete(stack_id)
-                except Exception as e:
-                    print(e)
+            try:
+                if self.args['<id_instance>'] == '-h':
+                    subprocess.check_output(['neo vm', '--help'])
                 else:
-                    pass
-                finally:
-                    pass
+                    compute = nova_client.Client(
+                        2, session=login_lib.get_session())
+                    instance_id = self.args['<id_instance>']
+                    answer = ""
+                    while answer not in ["y", "n"]:
+                        answer = input(
+                            "Are you sure to delete this instance [Y/N]? ").lower()
+
+                    if answer == "y":
+                        compute.servers.delete(instance_id)
+                        print("instance has been deleted")
+                    # compute.servers.unlock(instance_id)
+                    # compute.servers.resume(instance_id)
+            except Exception as e:
+                print(e)
+            else:
+                pass
+            finally:
+                pass
