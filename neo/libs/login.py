@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from keystoneauth1.identity import v3
 from keystoneauth1 import session, plugin
 from keystoneclient.v3 import client
+import dill
 
 home = os.path.expanduser("~")
 auth_url = 'https://keystone.wjv-1.neo.id:443/v3'
@@ -72,6 +73,7 @@ def do_login():
                                 include_catalog=True)
         
         sess = session.Session(auth=auth)
+        set_session(sess)
 
         with open("{}/.neo.env".format(home)) as envfile:
             if not 'OS_TOKEN' in envfile.read():
@@ -88,3 +90,24 @@ def  do_logout():
         with open("{}/.neo.env".format(home)) as envfile:
             os.remove("{}/.neo.env".format(home))    
             print("Logout Success")
+
+def set_session(sess):
+    try:
+        with open('/tmp/session.pkl', 'wb') as f:
+            dill.dump(sess, f)
+    except Exception as e:
+        print("set session failed")
+        raise
+
+def get_session():
+    try:
+        sess = None
+        with open('/tmp/session.pkl', 'rb') as f:
+            sess = dill.load(f)
+        return sess
+    except Exception as e:
+        print("you are not authorized. please login")
+        raise
+
+def check_session():
+    return os.path.isfile("/tmp/session.pkl")
