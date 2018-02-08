@@ -6,11 +6,10 @@ from .base import Base
 from docopt import docopt
 import requests
 from neo.clis import store
-from neo.libs import login as login_lib
+from neo.libs import network as network_lib
 import os
 import re
 
-from neutronclient.v2_0 import client as neutron_client
 from tabulate import tabulate
 
 
@@ -33,11 +32,7 @@ Run 'neo network COMMAND --help' for more information on a command.
 
     def execute(self):
         if self.args['ls']:
-            neutron = neutron_client.Client(session=login_lib.get_session())
-            networks = neutron.list_networks()
-            data_network = [[network['id'], network['name']]
-                             for network in networks['networks']]
-            print(data_network)
+            data_network = network_lib.get_list()
             print(tabulate(data_network, headers=[
                   "ID", "Name"], tablefmt="grid"))
         if self.args['rm']:
@@ -45,8 +40,6 @@ Run 'neo network COMMAND --help' for more information on a command.
                 if self.args['<id_network>'] == '-h':
                     subprocess.check_output(['neo network', '--help'])
                 else:
-                    neutron = neutron_client.Client(
-                        session=login_lib.get_session())
                     network_id = self.args['<id_network>']
                     answer = ""
                     while answer not in ["y", "n"]:
@@ -54,7 +47,7 @@ Run 'neo network COMMAND --help' for more information on a command.
                             "Are you sure to delete this network [Y/N]? ").lower()
 
                     if answer == "y":
-                        neutron.delete_network(network_id)
+                        network_lib.do_delete(network_id)
                         print("network has been deleted")
             except Exception as e:
                 print(e)
