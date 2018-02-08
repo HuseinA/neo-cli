@@ -1,5 +1,7 @@
 appdirs==1.4.3
 Babel==2.5.3
+certifi==2018.1.18
+chardet==3.0.4
 click==6.7
 cliff==2.11.0
 cmd2==0.8.0
@@ -9,6 +11,7 @@ deprecation==1.1
 dill==0.2.7.1
 docopt==0.6.2
 dogpile.cache==0.6.4
+idna==2.6
 iso8601==0.1.12
 jmespath==0.9.3
 jsonpatch==1.21
@@ -36,15 +39,17 @@ pyperclip==1.6.0
 python-dotenv==0.7.1
 python-heatclient==1.10.0
 python-keystoneclient==3.14.0
+python-neutronclient==6.7.0
 python-novaclient==9.1.1
 python-swiftclient==3.5.0
 pytz==2017.3
 PyYAML==3.12
-requests==2.13.0
+requests==2.18.4
 requestsexceptions==1.4.0
 rfc3986==1.1.0
 simplejson==3.13.2
 six==1.11.0
 stevedore==1.28.0
 tabulate==0.8.2
+urllib3==1.22
 wrapt==1.10.11
