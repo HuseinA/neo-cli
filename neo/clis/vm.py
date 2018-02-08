@@ -6,11 +6,10 @@ from .base import Base
 from docopt import docopt
 import requests
 from neo.clis import store
-from neo.libs import login as login_lib
+from neo.libs import vm as vm_lib
 import os
 import re
 
-from novaclient import client as nova_client
 from tabulate import tabulate
 
 
@@ -33,10 +32,7 @@ Run 'neo vm COMMAND --help' for more information on a command.
 
     def execute(self):
         if self.args['ls']:
-            compute = nova_client.Client(2, session=login_lib.get_session())
-            instances = [instance for instance in compute.servers.list()]
-            data_instance = [[instance.id, instance.name]
-                             for instance in instances]
+            data_instance = vm_lib.get_list()
             print(tabulate(data_instance, headers=[
                   "ID", "Name"], tablefmt="grid"))
         if self.args['rm']:
@@ -44,8 +40,6 @@ Run 'neo vm COMMAND --help' for more information on a command.
                 if self.args['<id_instance>'] == '-h':
                     subprocess.check_output(['neo vm', '--help'])
                 else:
-                    compute = nova_client.Client(
-                        2, session=login_lib.get_session())
                     instance_id = self.args['<id_instance>']
                     answer = ""
                     while answer not in ["y", "n"]:
@@ -53,10 +47,8 @@ Run 'neo vm COMMAND --help' for more information on a command.
                             "Are you sure to delete this instance [Y/N]? ").lower()
 
                     if answer == "y":
-                        compute.servers.delete(instance_id)
+                        vm_lib.do_delete(instance_id)
                         print("instance has been deleted")
-                    # compute.servers.unlock(instance_id)
-                    # compute.servers.resume(instance_id)
             except Exception as e:
                 print(e)
             else:
