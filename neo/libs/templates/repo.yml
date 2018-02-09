@@ -5,12 +5,12 @@ clusters:
 
 services:
   key_pairs:
-    url: "local+templates/services/key_pairs"
+    url: "git+https://github.com/BiznetGIO/neo-heat-key-pairs.git"
     description: "Key pairs setup"
 
 deployments:
 
 networks:
   private: 
-    url: "local+templates/networks/private"
+    url: "git+https://github.com/BiznetGIO/neo-heat-private-network.git"
     description: "Private network setup"
