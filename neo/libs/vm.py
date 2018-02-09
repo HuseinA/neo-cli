@@ -10,9 +10,7 @@ def get_nova_client():
 def get_list():
     compute = get_nova_client()
     instances = [instance for instance in compute.servers.list()]
-    data_instance = [[instance.id, instance.name]
-                     for instance in instances]
-    return data_instance
+    return instances
 
 
 def do_delete(instance_id):
