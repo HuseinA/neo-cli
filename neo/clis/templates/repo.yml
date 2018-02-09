@@ -1,0 +1,16 @@
+clusters:
+  kubernetes:
+    url: "git+https://github.com/BiznetGIO/neo-heat-kubernetes.git"
+    description: "Template that installs a kubernetes cluster resource group and a master node."
+
+services:
+  key_pairs:
+    url: "local+templates/services/key_pairs"
+    description: "Key pairs setup"
+
+deployments:
+
+networks:
+  private: 
+    url: "local+templates/networks/private"
+    description: "Private network setup"
