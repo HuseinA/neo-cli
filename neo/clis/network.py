@@ -6,49 +6,49 @@ from .base import Base
 from docopt import docopt
 import requests
 from neo.clis import store
-from neo.libs import vm as vm_lib
+from neo.libs import network as network_lib
 import os
 import re
 
 from tabulate import tabulate
 
 
-class Vm(Base):
+class Network(Base):
     """
 usage: 
-vm ( ls | rm <id_instance>)
+network ( ls | rm <id_network>)
 
-Manage virtual machine
+Manage network
 
 Options:
 --help   Print usage
 
 Commands:
-ls			List of virtual machine
-rm <id_instance>     	Remove one of machine
+ls			List of network
+rm <id_network>     	Remove one of network
 
-Run 'neo vm COMMAND --help' for more information on a command.
+Run 'neo network COMMAND --help' for more information on a command.
 """
 
     def execute(self):
         if self.args['ls']:
-            data_instance = vm_lib.get_list()
-            print(tabulate(data_instance, headers=[
+            data_network = network_lib.get_list()
+            print(tabulate(data_network, headers=[
                   "ID", "Name"], tablefmt="grid"))
         if self.args['rm']:
             try:
-                if self.args['<id_instance>'] == '-h':
-                    subprocess.check_output(['neo vm', '--help'])
+                if self.args['<id_network>'] == '-h':
+                    subprocess.check_output(['neo network', '--help'])
                 else:
-                    instance_id = self.args['<id_instance>']
+                    network_id = self.args['<id_network>']
                     answer = ""
                     while answer not in ["y", "n"]:
                         answer = input(
-                            "Are you sure to delete this instance [Y/N]? ").lower()
+                            "Are you sure to delete this network [Y/N]? ").lower()
 
                     if answer == "y":
-                        vm_lib.do_delete(instance_id)
-                        print("instance has been deleted")
+                        network_lib.do_delete(network_id)
+                        print("network has been deleted")
             except Exception as e:
                 print(e)
             else:
