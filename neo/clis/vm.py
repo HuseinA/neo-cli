@@ -31,9 +31,10 @@ Run 'neo vm COMMAND --help' for more information on a command.
 
     def execute(self):
         if self.args['ls']:
-            data_instance = vm_lib.get_list()
+            data_instance = [[instance.id, instance.name, instance.status]
+                             for instance in vm_lib.get_list()]
             print(tabulate(data_instance, headers=[
-                  "ID", "Name"], tablefmt="grid"))
+                  "ID", "Name", "Status"], tablefmt="grid"))
         if self.args['rm']:
             try:
                 if self.args['<id_instance>'] == '-h':
