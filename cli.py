@@ -9,8 +9,10 @@ Options:
 Commands:
   login       Log in to a NEO Cloud 
   logout      Log out from a NEO Cloud
-  create      Deploy your service to NEO Cloud
   vm          Manage virtual machine
+
+Orchestration:
+  create      Deploy your service to NEO Cloud
 
 Run 'neo COMMAND --help' for more information on a command.
 """

@@ -32,7 +32,6 @@ oslo.serialization==2.24.0
 oslo.utils==3.35.0
 packaging==16.8
 pbr==3.1.1
-pkg-resources==0.0.0
 prettytable==0.7.2
 pyparsing==2.2.0
 pyperclip==1.6.0
