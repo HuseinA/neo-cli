@@ -4,7 +4,6 @@ import subprocess
 from json import dumps
 from neo.clis.base import Base
 from docopt import docopt
-from neo.clis import store
 from neo.libs import login as login_lib
 
 class Login(Base):

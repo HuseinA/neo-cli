@@ -5,7 +5,6 @@ from json import dumps
 from .base import Base
 from docopt import docopt
 import requests
-from neo.clis import store
 from neo.libs import network as network_lib
 import os
 import re
