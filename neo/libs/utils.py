@@ -3,6 +3,7 @@ import os
 import yaml
 import codecs
 import shutil
+import coloredlogs, logging
 
 
 
@@ -73,5 +74,26 @@ def yaml_parser(file):
           data = yaml.load(stream)
           return data
 
-        except YAMLError as exc:
+        except yaml.YAMLError as exc:
           print(exc)
+
+def yaml_create(out_file,data):
+    with open(out_file, 'w') as outfile:
+        try:
+            yaml.dump(data, outfile, default_flow_style=False)
+            return True
+
+        except yaml.YAMLError as exc:
+          print(exc)
+
+def log_info(stdin):
+    coloredlogs.install()
+    logging.info(stdin)
+
+def log_warn(stdin):
+    coloredlogs.install()
+    logging.warn(stdin)
+
+def log_err(stdin):
+    coloredlogs.install()
+    logging.error(stdin)

@@ -5,6 +5,7 @@ from keystoneauth1.identity import v3
 from keystoneauth1 import session, plugin
 from keystoneclient.v3 import client
 import dill
+from neo.libs import utils
 
 home = os.path.expanduser("~")
 auth_url = 'https://keystone.wjv-1.neo.id:443/v3'
@@ -80,23 +81,23 @@ def do_login():
                 token = sess.get_token()
                 add_token(token)
                 load_env_file()
-                print("Login Success")
+                utils.log_info("Login Success")
     except Exception as e:
         print(e)
-        print("Login Failed")
+        utils.log_err("Login Failed")
 
 def  do_logout():
     if check_env():
         with open("{}/.neo.env".format(home)) as envfile:
             os.remove("{}/.neo.env".format(home))    
-            print("Logout Success")
+            utils.log_info("Logout Success")
 
 def set_session(sess):
     try:
         with open('/tmp/session.pkl', 'wb') as f:
             dill.dump(sess, f)
     except Exception as e:
-        print("set session failed")
+        utils.log_err("set session failed")
         raise
 
 def get_session():
@@ -106,7 +107,8 @@ def get_session():
             sess = dill.load(f)
         return sess
     except Exception as e:
-        print("you are not authorized. please login")
+        print("you are not authorized")
+        do_login()
         raise
 
 def check_session():
