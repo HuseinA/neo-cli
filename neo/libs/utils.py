@@ -44,7 +44,7 @@ def template_git(url, dir):
 
         return True
 
-    except git.exc.GitError as e:
+    except Exception as e:
         print(e)
         return False
 
