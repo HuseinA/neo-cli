@@ -37,8 +37,7 @@ def initialize(manifest_fie):
             stack_init["stack"] = stack
             stack_init["env_file"] = "{}/env.yml".format(dest)
             init.append(stack_init)
-    utils.yaml_create("{}/deploy.yml".format(key["deploy_dir"]),
-                      init)
+    utils.yaml_create("{}/deploy.yml".format(key["deploy_dir"]), init)
     return init
 
 
@@ -54,8 +53,11 @@ def do_create(initialize):
             deploy_name = deploy["project"]
             files, template = template_utils.process_template_path(
                 deploy_template)
-            heat.stacks.create(stack_name=deploy_name, template=template,
-                               environment=deploy_env_file.read(), files=files)
+            heat.stacks.create(
+                stack_name=deploy_name,
+                template=template,
+                environment=deploy_env_file.read(),
+                files=files)
     except Exception as e:
         print(e)
     else:
@@ -67,6 +69,8 @@ def do_create(initialize):
 def get_list():
     heat = get_heat_client()
     stacks = heat.stacks.list()
-    data_stack = [[stack.id, stack.stack_name, stack.stack_status_reason, stack.creation_time, stack.updated_time]
-                  for stack in stacks]
+    data_stack = [[
+        stack.id, stack.stack_name, stack.stack_status_reason,
+        stack.creation_time, stack.updated_time
+    ] for stack in stacks]
     return data_stack

@@ -32,8 +32,8 @@ Run 'neo network COMMAND --help' for more information on a command.
     def execute(self):
         if self.args['ls']:
             data_network = network_lib.get_list()
-            print(tabulate(data_network, headers=[
-                  "ID", "Name"], tablefmt="grid"))
+            print(tabulate(
+                data_network, headers=["ID", "Name"], tablefmt="grid"))
         if self.args['rm']:
             try:
                 if self.args['<id_network>'] == '-h':
@@ -43,7 +43,8 @@ Run 'neo network COMMAND --help' for more information on a command.
                     answer = ""
                     while answer not in ["y", "n"]:
                         answer = input(
-                            "Are you sure to delete this network [Y/N]? ").lower()
+                            "Are you sure to delete this network [Y/N]? "
+                        ).lower()
 
                     if answer == "y":
                         network_lib.do_delete(network_id)

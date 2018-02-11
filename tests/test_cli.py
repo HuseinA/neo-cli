@@ -1,6 +1,5 @@
 """Tests for our main skele CLI module."""
 
-
 from subprocess import PIPE, Popen as popen
 from unittest import TestCase
 

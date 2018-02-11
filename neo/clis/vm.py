@@ -33,8 +33,10 @@ Run 'neo vm COMMAND --help' for more information on a command.
         if self.args['ls']:
             data_instance = [[instance.id, instance.name, instance.status]
                              for instance in vm_lib.get_list()]
-            print(tabulate(data_instance, headers=[
-                  "ID", "Name", "Status"], tablefmt="grid"))
+            print(tabulate(
+                data_instance,
+                headers=["ID", "Name", "Status"],
+                tablefmt="grid"))
         if self.args['rm']:
             try:
                 if self.args['<id_instance>'] == '-h':
@@ -44,7 +46,8 @@ Run 'neo vm COMMAND --help' for more information on a command.
                     answer = ""
                     while answer not in ["y", "n"]:
                         answer = input(
-                            "Are you sure to delete this instance [Y/N]? ").lower()
+                            "Are you sure to delete this instance [Y/N]? "
+                        ).lower()
 
                     if answer == "y":
                         vm_lib.do_delete(instance_id)

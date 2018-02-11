@@ -44,7 +44,10 @@ create in to Neo Cloud
                     '1', endpoint=heat_url, token=os.environ.get("OS_TOKEN"))
 
                 heat.stacks.create(
-                    stack_name=templates, template=template, environment=env.read(), files=files)
+                    stack_name=templates,
+                    template=template,
+                    environment=env.read(),
+                    files=files)
         except Exception as e:
             print(e)
         else:
