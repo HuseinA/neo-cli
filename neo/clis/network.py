@@ -32,8 +32,9 @@ Run 'neo network COMMAND --help' for more information on a command.
     def execute(self):
         if self.args['ls']:
             data_network = network_lib.get_list()
-            print(tabulate(
-                data_network, headers=["ID", "Name"], tablefmt="grid"))
+            print(
+                tabulate(
+                    data_network, headers=["ID", "Name"], tablefmt="grid"))
         if self.args['rm']:
             try:
                 if self.args['<id_network>'] == '-h':

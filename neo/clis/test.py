@@ -35,7 +35,8 @@ Run 'neo test COMMAND --help' for more information on a command.
         if self.args['ls']:
             # deploy_init = orch.initialize("neo.yml")
             # orch.create(deploy_init)
-            print(tabulate(
-                orch.get_list(),
-                headers=["ID", "Name", "Status", "Created", "Updated"],
-                tablefmt="grid"))
+            print(
+                tabulate(
+                    orch.get_list(),
+                    headers=["ID", "Name", "Status", "Created", "Updated"],
+                    tablefmt="grid"))

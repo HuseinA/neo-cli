@@ -1,10 +1,10 @@
 import getpass
 import os
+import dill
 from dotenv import load_dotenv
 from keystoneauth1.identity import v3
 from keystoneauth1 import session, plugin
 from keystoneclient.v3 import client
-import dill
 from neo.libs import utils
 
 home = os.path.expanduser("~")
