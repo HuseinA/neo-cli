@@ -4,7 +4,7 @@ clusters:
     description: "Template that installs a kubernetes cluster resource group and a master node."
 
 services:
-  key_pairs:
+  key-pairs:
     url: "git+https://github.com/BiznetGIO/neo-heat-key-pairs.git"
     description: "Key pairs setup"
 

@@ -6,6 +6,25 @@ import shutil
 import coloredlogs, logging
 
 
+def do_deploy_dir(manifest_file):
+    try:
+        manifest = {}
+        manifest_dir = os.path.dirname(os.path.realpath(manifest_file))
+        manifest["deploy_dir"] = "{}/.deploy".format(manifest_dir)
+
+        if not os.path.isdir(manifest["deploy_dir"]):
+            os.makedirs(manifest["deploy_dir"])
+
+        key = get_key(manifest_file)
+        manifest["stack"] = key["stack"]
+        manifest["data"] = key["data"]
+
+        return manifest
+
+    except Exception as e:
+        raise
+
+
 def get_key(manifest_file):
     try:
         manifest = {
@@ -16,11 +35,6 @@ def get_key(manifest_file):
                 "clusters": []
             }
         }
-        manifest_dir = os.path.dirname(os.path.realpath(manifest_file))
-        manifest["deploy_dir"] = "{}/.deploy".format(manifest_dir)
-
-        if not os.path.isdir(manifest["deploy_dir"]):
-            os.makedirs(manifest["deploy_dir"])
 
         neo_templates = codecs.open(
             manifest_file, encoding='utf-8', errors='strict')
@@ -31,6 +45,17 @@ def get_key(manifest_file):
 
     except Exception as e:
         raise
+
+
+def get_project(manifest_file):
+    key = get_key(manifest_file)
+    manifest = list()
+    manifest += [service for service in key["stack"]["services"]]
+    manifest += [network for network in key["stack"]["networks"]]
+    manifest += [deploy for deploy in key["stack"]["deployments"]]
+    manifest += [cluster for cluster in key["stack"]["clusters"]]
+
+    return manifest
 
 
 def template_git(url, dir):
@@ -45,7 +70,6 @@ def template_git(url, dir):
         return True
 
     except Exception as e:
-        print(e)
         return False
 
 
