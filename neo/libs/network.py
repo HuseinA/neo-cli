@@ -11,9 +11,7 @@ def get_neutron_client():
 def get_list():
     neutron = get_neutron_client()
     networks = neutron.list_networks()
-    data_network = [[network['id'], network['name']]
-                    for network in networks['networks']]
-    return data_network
+    return networks['networks']
 
 
 def do_delete(network_id):

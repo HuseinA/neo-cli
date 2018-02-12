@@ -14,7 +14,7 @@ from tabulate import tabulate
 
 class Network(Base):
     """
-usage: 
+usage:
 network ( ls | rm <id_network>)
 
 Manage network
@@ -31,9 +31,10 @@ Run 'neo network COMMAND --help' for more information on a command.
 
     def execute(self):
         if self.args['ls']:
-            data_network = network_lib.get_list()
+            data_network = [[network['id'], network['name'], network['status']]
+                            for network in network_lib.get_list()]
             print(tabulate(data_network, headers=[
-                  "ID", "Name"], tablefmt="grid"))
+                  "ID", "Name", "Status"], tablefmt="grid"))
         if self.args['rm']:
             try:
                 if self.args['<id_network>'] == '-h':
