@@ -44,7 +44,8 @@ Run 'neo network COMMAND --help' for more information on a command.
                     answer = ""
                     while answer not in ["y", "n"]:
                         answer = input(
-                            "Are you sure to delete this network [Y/N]? ").lower()
+                            "Are you sure to delete this network [Y/N]? "
+                        ).lower()
 
                     if answer == "y":
                         network_lib.do_delete(network_id)

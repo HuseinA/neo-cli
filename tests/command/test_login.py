@@ -1,6 +1,5 @@
 """Tests for our `neo hello` subcommand."""
 
-
 from subprocess import PIPE, Popen as popen
 from unittest import TestCase
 

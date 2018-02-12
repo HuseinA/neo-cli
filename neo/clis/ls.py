@@ -13,22 +13,26 @@ from neo.libs import orchestration as orch
 from tabulate import tabulate
 
 
-class Create(Base):
+class Ls(Base):
     """
 usage: 
-        create [-f PATH]
+        ls [-f PATH] [-a]
 
 List all stack
 
 Options:
 -h --help               Print usage
 -f PATH --file=PATH     Set neo manifest file
+-a --all                List all stacks
 
-Run 'neo create COMMAND --help' for more information on a command.
+Run 'neo ls COMMAND --help' for more information on a command.
 """
 
     def execute(self):
         headers = ["ID", "Name", "Status", "Created", "Updated"]
+        if self.args["--all"]:
+            print(tabulate(orch.get_list(), headers=headers, tablefmt="grid"))
+            exit()
 
         set_file = self.args["--file"]
         default_file = orch.check_manifest_file()
@@ -45,13 +49,6 @@ Run 'neo create COMMAND --help' for more information on a command.
             utils.log_err("Can't find neo.yml manifest file!")
             exit()
 
-        deploy_init = orch.initialize(default_file)
-        try:
-            orch.do_create(deploy_init)
-        except:
-            utils.log_err("Deploying Stack fail...")
-            exit()
-
         projects = utils.get_project(default_file)
 
         project_list = list()
@@ -62,3 +59,5 @@ Run 'neo create COMMAND --help' for more information on a command.
 
         if len(project_list) > 0:
             print(tabulate(project_list, headers=headers, tablefmt="grid"))
+        else:
+            utils.log_warn("No Data...")

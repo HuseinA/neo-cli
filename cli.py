@@ -18,7 +18,6 @@ Orchestration:
 Run 'neo COMMAND --help' for more information on a command.
 """
 
-
 from inspect import getmembers, isclass
 from docopt import docopt
 # from docopt import DocoptExit
@@ -52,13 +51,14 @@ def main():
     if hasattr(neo.clis, command_name) and command_name != '':
         module = getattr(neo.clis, command_name)
         neo.clis = getmembers(module, isclass)
-        command = [command[1]
-                   for command in neo.clis if command[0] != 'Base'][0]
+        command = [command[1] for command in neo.clis
+                   if command[0] != 'Base'][0]
         if command_args2 != '':
             command = command(options, command_args, command_args2)
         else:
             command = command(options, command_args)
         command.execute()
+
 
 if __name__ == '__main__':
     main()

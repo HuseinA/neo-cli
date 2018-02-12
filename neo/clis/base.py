@@ -1,9 +1,10 @@
 from docopt import docopt
 
+
 class Base(object):
     """Base class for the commands"""
 
-    def __init__(self, options,*command_args):
+    def __init__(self, options, *command_args):
         """
         Initialize the commands.
 

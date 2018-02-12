@@ -1,0 +1,6 @@
+clusters:
+  neo-k8s:
+    template: "kubernetes"
+    parameters:
+      master_size: 1
+      worker_size: 1
