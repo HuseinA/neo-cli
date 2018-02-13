@@ -94,7 +94,7 @@ def do_create(initialize):
                             deploy["dir"])
                         with open(private_key_file, "w") as pkey:
                             pkey.write(out)
-                            os.chmod(private_key_file, 600)
+                            os.chmod(private_key_file, 0o600)
                             utils.log_info("Done...")
                         wait_key = False
                     else:

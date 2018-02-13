@@ -3,6 +3,8 @@ import os
 import yaml
 import codecs
 import shutil
+import paramiko
+import select
 import coloredlogs, logging
 
 
@@ -134,3 +136,21 @@ def log_warn(stdin):
 def log_err(stdin):
     coloredlogs.install()
     logging.error(stdin)
+
+
+def ssh_out(hostname, user, key_file, command):
+    key = paramiko.RSAKey.from_private_key_file(key_file)
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(hostname, username=user, pkey=key)
+    log_info("Connected...")
+    # Example : "tailf -n 50 /tmp/deploy.log"
+    commands = command
+    channel = client.get_transport().open_session()
+    channel.exec_command(commands)
+    while True:
+        if channel.exit_status_ready():
+            break
+        rl, wl, xl = select.select([channel], [], [], 0.0)
+        if len(rl) > 0:
+            print(channel.recv(1028).decode("utf-8"))

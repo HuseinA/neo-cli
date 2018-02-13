@@ -49,7 +49,7 @@ Run 'neo create COMMAND --help' for more information on a command.
         try:
             orch.do_create(deploy_init)
         except:
-            utils.log_err("Deploying Stack fail...")
+            utils.log_err("Deploying Stack failed...")
             exit()
 
         projects = utils.get_project(default_file)

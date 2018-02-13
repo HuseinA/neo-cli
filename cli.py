@@ -12,8 +12,12 @@ Commands:
   vm          Manage virtual machine
   network     Manage network
 
-Orchestration:
-  create      Deploy your service to NEO Cloud
+Manage Orchestration:
+  create      Deploying neo stack
+  delete      Delete neo stack
+  update      Update neo stack
+  logs        Delete your service
+  exec        sdasa
 
 Run 'neo COMMAND --help' for more information on a command.
 """
