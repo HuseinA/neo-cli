@@ -16,3 +16,8 @@ def get_list():
 def do_delete(instance_id):
     compute = get_nova_client()
     compute.servers.delete(instance_id)
+
+
+def get_flavor():
+    compute = get_nova_client()
+    return compute.flavors.list()
