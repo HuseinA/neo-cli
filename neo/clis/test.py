@@ -9,7 +9,7 @@ from .base import Base
 from docopt import docopt
 from neo.libs import network as network_lib
 from neo.libs import utils
-from neo.libs import orchestration as orch
+from neo.libs import vm
 from tabulate import tabulate
 
 
@@ -31,8 +31,12 @@ Run 'neo test COMMAND --help' for more information on a command.
 
     def execute(self):
         if self.args['ls']:
-            deploy_init = orch.initialize("neo.yml")
-            orch.do_create(deploy_init)
+            print(list(vm.get_flavor()))
+            # for img in vm.get_flavor():
+            #     print(img.name)
+
+            # deploy_init = orch.initialize("neo.yml")
+            # orch.do_create(deploy_init)
             # print(
             #     tabulate(
             #         orch.get_list(),

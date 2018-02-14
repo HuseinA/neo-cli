@@ -1,5 +1,4 @@
 from neo.libs import login as login_lib
-from novaclient import client as nova_client
 from neutronclient.v2_0 import client as neutron_client
 
 

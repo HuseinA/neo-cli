@@ -14,3 +14,11 @@ networks:
   private: 
     url: "git+https://github.com/BiznetGIO/neo-heat-private-network.git"
     description: "Private network setup"
+
+instances:
+  vm:
+    url:
+    description: "Create Virtual Machine"
+    dependencies:
+      - services.key-pairs
+      - networks.private
