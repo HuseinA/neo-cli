@@ -112,7 +112,6 @@ def set_session(sess):
             dill.dump(sess, f)
     except Exception as e:
         utils.log_err("set session failed")
-        raise
 
 
 def get_session():
@@ -124,7 +123,7 @@ def get_session():
     except Exception as e:
         print("you are not authorized")
         do_login()
-        raise
+        return get_session()
 
 
 def check_session():
