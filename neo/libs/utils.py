@@ -5,6 +5,7 @@ import codecs
 import shutil
 import paramiko
 import select
+import npyscreen
 import coloredlogs, logging
 
 
@@ -153,3 +154,38 @@ def ssh_out(hostname, user, key_file, commands):
         rl, wl, xl = select.select([channel], [], [], 0.0)
         if len(rl) > 0:
             print(channel.recv(1028).decode("utf-8"))
+
+
+"""
+Generate text user interface:
+
+example :
+fields = [
+    {"type": "TitleText", "name": "Name", "key": "name"},
+    {"type": "TitlePassword", "name": "Password", "key": "password"},
+    {"type": "TitleSelectOne", "name": "Role",
+        "key": "role", "values": ["admin", "user"]},
+]
+
+form = form_create("Form Instalasi", fields)
+print(form["role"].value[0])
+print(form["name"].value)
+
+"""
+
+
+def form_create(form_title, fields):
+    def myFunction(*args):
+        form = npyscreen.Form(name=form_title)
+        result = {}
+        for field in fields:
+            t = field["type"]
+            k = field["key"]
+            del field["type"]
+            del field["key"]
+
+            result[k] = form.add(getattr(npyscreen, t), **field)
+        form.edit()
+        return result
+
+    return npyscreen.wrapper_basic(myFunction)
