@@ -35,7 +35,8 @@ def get_key(manifest_file):
                 "services": [],
                 "networks": [],
                 "deployments": [],
-                "clusters": []
+                "clusters": [],
+                "instances": []
             }
         }
 
@@ -57,6 +58,7 @@ def get_project(manifest_file):
     manifest += [network for network in key["stack"]["networks"]]
     manifest += [deploy for deploy in key["stack"]["deployments"]]
     manifest += [cluster for cluster in key["stack"]["clusters"]]
+    manifest += [cluster for cluster in key["stack"]["instances"]]
 
     return manifest
 

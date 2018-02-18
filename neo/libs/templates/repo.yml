@@ -4,9 +4,6 @@ clusters:
     description: "Template that installs a kubernetes cluster resource group and a master node."
 
 services:
-  key-pairs:
-    url: "git+https://github.com/BiznetGIO/neo-heat-key-pairs.git"
-    description: "Key pairs setup"
 
 deployments:
 
@@ -16,8 +13,11 @@ networks:
     description: "Private network setup"
 
 instances:
+  key-pairs:
+    url: "git+https://github.com/BiznetGIO/neo-heat-key-pairs.git"
+    description: "Key pairs setup"
   vm:
-    url:
+    url: "git+https://github.com/BiznetGIO/neo-heat-vm.git"
     description: "Create Virtual Machine"
     dependencies:
       - services.key-pairs

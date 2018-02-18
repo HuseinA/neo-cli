@@ -9,7 +9,7 @@ from .base import Base
 from docopt import docopt
 from neo.libs import network as network_lib
 from neo.libs import utils
-from neo.libs import vm
+from neo.libs import vm as vm_test
 from tabulate import tabulate
 
 
@@ -31,7 +31,7 @@ Run 'neo test COMMAND --help' for more information on a command.
 
     def execute(self):
         if self.args['ls']:
-            print(list(vm.get_flavor()))
+            print(list(vm_test.get_flavor()))
             # for img in vm.get_flavor():
             #     print(img.name)
 
