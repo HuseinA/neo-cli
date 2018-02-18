@@ -84,6 +84,7 @@ def do_create(initialize):
             files, template = template_utils.process_template_path(
                 deploy_template)
             """Create Stack"""
+            utils.log_info("Create {} stack....".format(deploy["project"]))
             if not deploy["env_file"]:
                 heat.stacks.create(
                     stack_name=deploy_name, template=template, files=files)
