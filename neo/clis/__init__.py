@@ -5,4 +5,5 @@ from .vm import *
 from .network import *
 from .ls import *
 from .create import *
+from .delete import *
 from .test import *

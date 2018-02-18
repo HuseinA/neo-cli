@@ -6,6 +6,7 @@ from .base import Base
 from docopt import docopt
 import requests
 from neo.libs import vm as vm_lib
+from neo.libs import utils
 import os
 import re
 
@@ -47,12 +48,12 @@ Run 'neo vm COMMAND --help' for more information on a command.
                     answer = ""
                     while answer not in ["y", "n"]:
                         answer = input(
-                            "Are you sure to delete this instance [Y/N]? "
+                            "Are you sure to delete this instance [y/n]? "
                         ).lower()
 
                     if answer == "y":
                         vm_lib.do_delete(instance_id)
-                        print("instance has been deleted")
+                        utils.log_info("VM has been deleted")
             except Exception as e:
                 print(e)
             else:
