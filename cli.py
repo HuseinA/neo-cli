@@ -9,10 +9,6 @@ Options:
 Commands:
   login       Log in to a NEO Cloud 
   logout      Log out from a NEO Cloud
-  vm          Manage virtual machine
-  network     Manage network
-
-Manage Orchestration:
   create      Deploying neo stack
   delete      Delete neo stack
   update      Update neo stack

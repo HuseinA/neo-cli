@@ -11,7 +11,7 @@ def get_heat_client():
         heat = heat_client.Client('1', session=login_lib.get_session())
         return heat
     except Exception as e:
-        print(e)
+        utils.log_err(e)
 
 
 def initialize(manifest_fie):
@@ -116,7 +116,7 @@ def do_create(initialize):
                         time.sleep(5)
 
     except Exception as e:
-        print(e)
+        utils.log_err(e)
     else:
         pass
     finally:

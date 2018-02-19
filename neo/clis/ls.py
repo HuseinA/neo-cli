@@ -8,6 +8,7 @@ from json import dumps
 from .base import Base
 from docopt import docopt
 from neo.libs import network as network_lib
+from neo.libs import vm as vm_lib
 from neo.libs import utils
 from neo.libs import orchestration as orch
 from tabulate import tabulate
@@ -16,14 +17,16 @@ from tabulate import tabulate
 class Ls(Base):
     """
 usage: 
-        ls [-f PATH] [-a]
+        ls [-f PATH] [-a] [-m|-n]
 
 List all stack
 
 Options:
 -h --help               Print usage
 -f PATH --file=PATH     Set neo manifest file
--a --all                List all stacks
+-a --all                List all Stacks
+-m --virtual-machine    List all Virtual Machines
+-n --network            List all Networks
 
 Run 'neo ls COMMAND --help' for more information on a command.
 """
@@ -37,10 +40,30 @@ Run 'neo ls COMMAND --help' for more information on a command.
         set_file = self.args["--file"]
         default_file = orch.check_manifest_file()
 
+        if self.args["--virtual-machine"]:
+            data_instance = [[instance.id, instance.name, instance.status]
+                             for instance in vm_lib.get_list()]
+            print(
+                tabulate(
+                    data_instance,
+                    headers=["ID", "Name", "Status"],
+                    tablefmt="grid"))
+            exit()
+
+        if self.args["--network"]:
+            data_network = [[
+                network['id'], network['name'], network['status']
+            ] for network in network_lib.get_list()]
+            print(
+                tabulate(
+                    data_network,
+                    headers=["ID", "Name", "Status"],
+                    tablefmt="grid"))
+            exit()
+
         if set_file:
-            real_path = os.path.dirname(os.path.realpath(set_file))
-            if os.path.exists(real_path):
-                default_file = "{}/{}".format(real_path, set_file)
+            if os.path.exists(set_file):
+                default_file = "{}".format(set_file)
             else:
                 utils.log_err("{} file is not exists!".format(set_file))
                 exit()
