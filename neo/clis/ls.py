@@ -43,6 +43,9 @@ Run 'neo ls COMMAND --help' for more information on a command.
         if self.args["--virtual-machine"]:
             data_instance = [[instance.id, instance.name, instance.status]
                              for instance in vm_lib.get_list()]
+            if len(data_instance) == 0:
+                utils.log_err("No Data...")
+                exit()
             print(
                 tabulate(
                     data_instance,
@@ -54,6 +57,9 @@ Run 'neo ls COMMAND --help' for more information on a command.
             data_network = [[
                 network['id'], network['name'], network['status']
             ] for network in network_lib.get_list()]
+            if len(data_network) == 0:
+                utils.log_err("No Data...")
+                exit()
             print(
                 tabulate(
                     data_network,
@@ -83,4 +89,4 @@ Run 'neo ls COMMAND --help' for more information on a command.
         if len(project_list) > 0:
             print(tabulate(project_list, headers=headers, tablefmt="grid"))
         else:
-            utils.log_warn("No Data...")
+            utils.log_err("No Data...")

@@ -95,7 +95,7 @@ def do_login():
                 load_env_file()
                 utils.log_info("Login Success")
     except Exception as e:
-        print(e)
+        utils.log_err(e)
         utils.log_err("Login Failed")
 
 

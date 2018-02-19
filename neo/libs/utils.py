@@ -28,6 +28,30 @@ def do_deploy_dir(manifest_file):
         raise
 
 
+def check_key(dict, val):
+    try:
+        if dict[val]:
+            return True
+    except:
+        return False
+
+
+def question(word):
+    answer = False
+    while answer not in ["y", "n"]:
+        answer = input("{} [y/n]? ".format(word).lower())
+
+    if answer == "y":
+        answer = True
+    else:
+        answer = False
+    return answer
+
+
+def get_index(dictionary):
+    return [key for (key, value) in dictionary.items()]
+
+
 def get_key(manifest_file):
     try:
         manifest = {
@@ -58,7 +82,7 @@ def get_project(manifest_file):
     manifest += [network for network in key["stack"]["networks"]]
     manifest += [deploy for deploy in key["stack"]["deployments"]]
     manifest += [cluster for cluster in key["stack"]["clusters"]]
-    manifest += [cluster for cluster in key["stack"]["instances"]]
+    manifest += [instance for instance in key["stack"]["instances"]]
 
     return manifest
 
@@ -169,14 +193,14 @@ fields = [
         "key": "role", "values": ["admin", "user"]},
 ]
 
-form = form_create("Form Instalasi", fields)
+form = form_generator("Form Instalasi", fields)
 print(form["role"].value[0])
 print(form["name"].value)
 
 """
 
 
-def form_create(form_title, fields):
+def form_generator(form_title, fields):
     def myFunction(*args):
         form = npyscreen.Form(name=form_title)
         result = {}
@@ -191,3 +215,22 @@ def form_create(form_title, fields):
         return result
 
     return npyscreen.wrapper_basic(myFunction)
+
+
+def isint(number):
+    try:
+        to_float = float(number)
+        to_int = int(to_float)
+    except ValueError:
+        return False
+    else:
+        return to_float == to_int
+
+
+def isfloat(number):
+    try:
+        to_float = float(number)
+    except ValueError:
+        return False
+    else:
+        return True
