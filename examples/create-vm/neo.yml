@@ -14,4 +14,9 @@ instances:
       image: "CentOS 7.3"
       flavor: "SS2.2"
       private_network: "network-test"
+
+deploy:
+  - instances.key-test
+  - networks.network-test
+  - instances.vm-test
       

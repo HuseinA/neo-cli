@@ -136,7 +136,22 @@ def exec_form(stack, project):
 
 
 def dump(data):
-    d_dump = {}
+    d_dump = {"deploy": []}
+    for d_yml in data:
+        pre_yml = {d_yml["name"]: {"template": d_yml["template"]}}
+        for k, v in d_yml.items():
+            if k not in ["name", "template", "stack", "parent"]:
+                if not utils.check_key(pre_yml[d_yml["name"]], "parameters"):
+                    pre_yml[d_yml["name"]]["parameters"] = {k: v}
+                else:
+                    pre_yml[d_yml["name"]]["parameters"].update({k: v})
+
+        if not utils.check_key(d_dump, d_yml["stack"]):
+            d_dump[d_yml["stack"]] = pre_yml
+        else:
+            d_dump[d_yml["stack"]].update(pre_yml)
+        d_dump["deploy"].append("{}.{}".format(d_yml["stack"], d_yml["name"]))
+    return d_dump
 
 
 def init(stack=None, project=None):
@@ -191,5 +206,5 @@ def init(stack=None, project=None):
             if null_data == 0:
                 validate = True
                 data.append(form)
-    print(data)
+    print(dump(data))
     exit()
