@@ -220,4 +220,4 @@ def init(stack=None, project=None):
                 data.append(form)
 
     utils.yaml_create("neo.yml", dump(data))
-    exit()
+    return utils.read_file("neo.yml")

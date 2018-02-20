@@ -110,7 +110,7 @@ def do_create(initialize):
                     environment=deploy_env_file.read(),
                     files=files)
             if (len(initialize) > 0):
-                time.sleep(5)
+                time.sleep(8)
             if deploy["stack"] == "clusters":
                 utils.log_info("Generate {} private key...".format(
                     deploy["project"]))

@@ -56,9 +56,14 @@ Run 'neo create COMMAND --help' for more information on a command.
                 "Do you want to generate neo.yml manifest? ")
 
             if q_stack:
-                ncurses.init()
-
-            exit()
+                print(ncurses.init())
+                q_deploy = utils.question("Continue to deploy? ")
+                if q_deploy:
+                    default_file = "neo.yml"
+                else:
+                    exit()
+            else:
+                exit()
 
         deploy_init = orch.initialize(default_file)
         try:

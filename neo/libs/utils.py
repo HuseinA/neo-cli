@@ -152,6 +152,11 @@ def yaml_create(out_file, data):
             print(exc)
 
 
+def read_file(file):
+    with open(file, 'r') as outfile:
+        return outfile.read()
+
+
 def log_info(stdin):
     coloredlogs.install()
     logging.info(stdin)
