@@ -1,0 +1,22 @@
+networks:
+  network-test:
+    template: "private"
+    parameters:
+      cidr: "192.168.17.0/24"
+      gateway: "192.168.17.1"
+instances:
+  key-test:
+    template: "key-pairs"
+  vm-test:
+    template: "vm"
+    parameters:
+      key_name: "key-test"
+      image: "CentOS 7.3"
+      flavor: "SS2.2"
+      private_network: "network-test"
+
+deploy:
+  - instances.key-test
+  - networks.network-test
+  - instances.vm-test
+      
