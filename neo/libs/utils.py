@@ -67,7 +67,9 @@ def get_key(manifest_file):
         neo_templates = codecs.open(
             manifest_file, encoding='utf-8', errors='strict')
         manifest["data"] = yaml.load(neo_templates.read())
-        for (key, value) in manifest["data"].items():
+        manifest_data = eval(str(manifest["data"]))
+        del manifest_data["deploy"]
+        for (key, value) in manifest_data.items():
             manifest["stack"][key] = [i for i, v in value.items()]
         return manifest
 

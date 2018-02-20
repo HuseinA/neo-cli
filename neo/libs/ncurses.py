@@ -137,6 +137,7 @@ def exec_form(stack, project):
 
 def dump(data):
     d_dump = {"deploy": []}
+    d_depend = []
     for d_yml in data:
         pre_yml = {d_yml["name"]: {"template": d_yml["template"]}}
         for k, v in d_yml.items():
@@ -150,6 +151,17 @@ def dump(data):
             d_dump[d_yml["stack"]] = pre_yml
         else:
             d_dump[d_yml["stack"]].update(pre_yml)
+
+        if d_yml["parent"]:
+            d_depend.append({"key": d_yml["parent"], "val": d_yml["name"]})
+        else:
+            if len(d_depend) > 0:
+                for k_depend in d_depend:
+                    pre_yml[d_yml["name"]]["parameters"].update({
+                        k_depend["key"]:
+                        k_depend["val"]
+                    })
+
         d_dump["deploy"].append("{}.{}".format(d_yml["stack"], d_yml["name"]))
     return d_dump
 
@@ -206,5 +218,6 @@ def init(stack=None, project=None):
             if null_data == 0:
                 validate = True
                 data.append(form)
-    print(dump(data))
+
+    utils.yaml_create("neo.yml", dump(data))
     exit()

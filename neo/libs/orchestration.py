@@ -58,6 +58,20 @@ def initialize(manifest_fie):
                 stack_init["env_file"] = "{}/env.yml".format(dest)
 
             init.append(stack_init)
+    """ Reformat squences deploy """
+    if utils.check_key(key["data"], "deploy"):
+        if len(key["data"]["deploy"]) > 0:
+            set_sequence = list()
+            for deploy in key["data"]["deploy"]:
+                set_deploy = deploy.split(".")
+                set_stack = set_deploy[0]
+                set_project = set_deploy[1]
+                set_sequence.append([
+                    new_init for new_init in init
+                    if (new_init["stack"] == set_stack) and (
+                        new_init["project"] == set_project)
+                ][0])
+            init = set_sequence
     utils.yaml_create("{}/deploy.yml".format(key["deploy_dir"]), init)
     return init
 
