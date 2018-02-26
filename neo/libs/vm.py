@@ -1,4 +1,4 @@
-from neo.libs import login as login_lib
+from neo.libs import login as login_lib,image
 from novaclient import client as nova_client
 
 
@@ -21,3 +21,8 @@ def do_delete(instance_id):
 def get_flavor():
     compute = get_nova_client()
     return compute.flavors.list()
+
+
+def detail_flavor(flavor_id):
+    compute = get_nova_client()
+    return compute.flavors.get(flavor_id)

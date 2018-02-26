@@ -137,6 +137,55 @@ def do_create(initialize):
         pass
 
 
+def do_update(initialize):
+    try:
+        heat = get_heat_client()
+        for deploy in initialize:
+            deploy_init_file = "{}/init.yml".format(deploy["dir"])
+            deploy_file = utils.yaml_parser(deploy_init_file)["update"]
+            """ template """
+            deploy_template = "{}/{}".format(deploy["dir"], deploy_file)
+            deploy_name = deploy["project"]
+            files, template = template_utils.process_template_path(
+                deploy_template)
+            """Update Stack"""
+            utils.log_info("Update {} stack....".format(deploy["project"]))
+            if not deploy["env_file"]:
+                heat.stacks.update(deploy_name, template=template, files=files)
+            else:
+                deploy_env_file = open(deploy["env_file"])
+                heat.stacks.update(deploy_name,
+                    template=template,
+                    environment=deploy_env_file.read(),
+                    files=files)
+            if (len(initialize) > 0):
+                time.sleep(8)
+            if deploy["stack"] == "clusters":
+                utils.log_info("Generate {} private key...".format(
+                    deploy["project"]))
+                wait_key = True
+                while wait_key:
+                    out = get_private_key(
+                        deploy["project"])["output"]["output_value"]
+                    if out:
+                        private_key_file = "{}/private_key.pem".format(
+                            deploy["dir"])
+                        with open(private_key_file, "w") as pkey:
+                            pkey.write(out)
+                            os.chmod(private_key_file, 0o600)
+                            utils.log_info("Done...")
+                        wait_key = False
+                    else:
+                        time.sleep(5)
+
+    except Exception as e:
+        utils.log_err(e)
+    else:
+        pass
+    finally:
+        pass
+
+
 def get_list():
     heat = get_heat_client()
     stacks = heat.stacks.list()
