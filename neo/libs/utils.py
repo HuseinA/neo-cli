@@ -6,8 +6,11 @@ import shutil
 import paramiko
 import select
 import npyscreen
-import coloredlogs, logging
-
+import coloredlogs
+import logging
+import scp
+import sys
+import errno
 
 def do_deploy_dir(manifest_file):
     try:
@@ -172,14 +175,20 @@ def log_err(stdin):
     logging.error(stdin)
 
 
-def ssh_out(hostname, user, key_file, commands):
+def ssh_connect(hostname, user, key_file):
     key = paramiko.RSAKey.from_private_key_file(key_file)
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname, username=user, pkey=key)
     log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
+    return client
+
+
+def ssh_out(hostname, user, key_file, commands):
+    client = ssh_connect(hostname, user, key_file)
     channel = client.get_transport().open_session()
+    # Example : "tailf -n 50 /tmp/deploy.log"
     channel.exec_command(commands)
     while True:
         if channel.exit_status_ready():
@@ -188,6 +197,36 @@ def ssh_out(hostname, user, key_file, commands):
         if len(rl) > 0:
             print(channel.recv(1028).decode("utf-8"))
 
+
+def scp_put(hostname, user, key_file,  source_files, destination_folder):
+    client = ssh_connect(hostname, user, key_file)
+
+    # Define progress callback that prints the current percentage completed for the file
+    def progress(filename, size, sent):
+        sys.stdout.write("upload progress: %.2f%%   \r" %
+                         (float(sent)/float(size)*100))
+
+    scp_client = scp.SCPClient(client.get_transport(), progress=progress)
+    sftp_client = paramiko.SFTPClient.from_transport(client.get_transport())
+    for sf in source_files:
+        if os.path.isfile(sf):
+            try:
+                remote_file = os.path.join(destination_folder, sf)
+                file_dir = os.path.dirname(remote_file)
+                sftp_client.stat(remote_file)
+            except IOError as e:
+                if e.errno == errno.ENOENT:
+                    channel = client.get_transport().open_session()
+                    channel.exec_command('mkdir -p {}'.format(file_dir))
+                    scp_client.put(sf, remote_file, recursive=True,)
+            else:
+                scp_client.put(sf, remote_file, recursive=True,)
+            finally:
+                print(str(sf))
+        else:
+            log_err('file not found')
+    scp_client.close()
+    sftp_client.close()
 
 """
 Generate text user interface:
