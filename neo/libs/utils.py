@@ -11,6 +11,8 @@ import logging
 import scp
 import sys
 import errno
+from prompt_toolkit import prompt
+from prompt_toolkit.contrib.completers import WordCompleter
 
 def do_deploy_dir(manifest_file):
     try:
@@ -272,6 +274,30 @@ def form_generator(form_title, fields):
 
     return npyscreen.wrapper_basic(myFunction)
 
+def prompt_generator(form_title, fields):
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+
+    print(form_title)
+
+    data = {}
+    for field in fields:
+        if field['type'] == 'TitleSelectOne':
+            print('{} : '.format(field['name']))
+            completer = WordCompleter(field['values'], ignore_case=True)
+            for v in field['values']:
+                print('- {}'.format(v))
+            text = None
+
+            while text not in field['values']:
+                text = prompt('Enter your choice : ', completer=completer)
+            data[field['key']]= text
+        else:
+            data[field['key']] = prompt('{} : '.format(field['name']))
+        print('------------------------------')
+    return data
 
 def isint(number):
     try:
