@@ -10,7 +10,7 @@ import coloredlogs
 import logging
 import scp
 import sys
-
+import errno
 
 def do_deploy_dir(manifest_file):
     try:
@@ -198,7 +198,7 @@ def ssh_out(hostname, user, key_file, commands):
             print(channel.recv(1028).decode("utf-8"))
 
 
-def scp_put(hostname, user, key_file, source_file, destination_file):
+def scp_put(hostname, user, key_file,  source_files, destination_folder):
     client = ssh_connect(hostname, user, key_file)
 
     # Define progress callback that prints the current percentage completed for the file
@@ -207,14 +207,26 @@ def scp_put(hostname, user, key_file, source_file, destination_file):
                          (float(sent)/float(size)*100))
 
     scp_client = scp.SCPClient(client.get_transport(), progress=progress)
-    try:
-        scp_client.put(source_file, destination_file)
-        print(str(source_file))
-    except Exception as err:
-        log_err(err)
-    finally:
-        scp_client.close()
-
+    sftp_client = paramiko.SFTPClient.from_transport(client.get_transport())
+    for sf in source_files:
+        if os.path.isfile(sf):
+            try:
+                remote_file = os.path.join(destination_folder, sf)
+                file_dir = os.path.dirname(remote_file)
+                sftp_client.stat(remote_file)
+            except IOError as e:
+                if e.errno == errno.ENOENT:
+                    channel = client.get_transport().open_session()
+                    channel.exec_command('mkdir -p {}'.format(file_dir))
+                    scp_client.put(sf, remote_file, recursive=True,)
+            else:
+                scp_client.put(sf, remote_file, recursive=True,)
+            finally:
+                print(str(sf))
+        else:
+            log_err('file not found')
+    scp_client.close()
+    sftp_client.close()
 
 """
 Generate text user interface:
