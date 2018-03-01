@@ -63,7 +63,8 @@ def get_key(manifest_file):
                 "networks": [],
                 "deployments": [],
                 "clusters": [],
-                "instances": []
+                "instances": [],
+                "databases": []
             }
         }
 
@@ -88,6 +89,7 @@ def get_project(manifest_file):
     manifest += [deploy for deploy in key["stack"]["deployments"]]
     manifest += [cluster for cluster in key["stack"]["clusters"]]
     manifest += [instance for instance in key["stack"]["instances"]]
+    manifest += [database for database in key["stack"]["databases"]]
 
     return manifest
 
@@ -175,6 +177,14 @@ def log_err(stdin):
     logging.error(stdin)
 
 
+def list_dir(dirname):
+    listdir = list()
+    for root, dirs, files in os.walk(dirname):
+        for file in files:
+            listdir.append(os.path.join(root, file))
+    return listdir
+
+
 def ssh_connect(hostname, user, key_file):
     key = paramiko.RSAKey.from_private_key_file(key_file)
     client = paramiko.SSHClient()
@@ -185,7 +195,7 @@ def ssh_connect(hostname, user, key_file):
     return client
 
 
-def ssh_out(hostname, user, key_file, commands):
+def ssh_out_stream(hostname, user, key_file, commands):
     client = ssh_connect(hostname, user, key_file)
     channel = client.get_transport().open_session()
     # Example : "tailf -n 50 /tmp/deploy.log"

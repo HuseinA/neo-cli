@@ -1,5 +1,5 @@
 import os
-from neo.libs import utils, image, vm, orchestration
+from neo.libs import utils, image, vm, orchestration, network
 
 
 def get_flavor():
@@ -24,6 +24,14 @@ def get_img():
         imgs = list(reversed([img.name for img in list(image.get_list())]))
         utils.yaml_create(img_file, {"data": imgs})
     return imgs
+
+
+def get_key():
+    return [key.name for key in vm.get_keypairs()]
+
+
+def get_network():
+    return [net['name'] for net in network.get_list() if net['name'] != 'Public_Network']
 
 
 def get_stack():
