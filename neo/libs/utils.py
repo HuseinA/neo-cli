@@ -6,7 +6,10 @@ import shutil
 import paramiko
 import select
 import npyscreen
-import coloredlogs, logging
+import coloredlogs
+import logging
+import scp
+import sys
 
 
 def do_deploy_dir(manifest_file):
@@ -172,14 +175,20 @@ def log_err(stdin):
     logging.error(stdin)
 
 
-def ssh_out(hostname, user, key_file, commands):
+def ssh_connect(hostname, user, key_file):
     key = paramiko.RSAKey.from_private_key_file(key_file)
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname, username=user, pkey=key)
     log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
+    return client
+
+
+def ssh_out(hostname, user, key_file, commands):
+    client = ssh_connect(hostname, user, key_file)
     channel = client.get_transport().open_session()
+    # Example : "tailf -n 50 /tmp/deploy.log"
     channel.exec_command(commands)
     while True:
         if channel.exit_status_ready():
@@ -187,6 +196,24 @@ def ssh_out(hostname, user, key_file, commands):
         rl, wl, xl = select.select([channel], [], [], 0.0)
         if len(rl) > 0:
             print(channel.recv(1028).decode("utf-8"))
+
+
+def scp_put(hostname, user, key_file, source_file, destination_file):
+    client = ssh_connect(hostname, user, key_file)
+
+    # Define progress callback that prints the current percentage completed for the file
+    def progress(filename, size, sent):
+        sys.stdout.write("upload progress: %.2f%%   \r" %
+                         (float(sent)/float(size)*100))
+
+    scp_client = scp.SCPClient(client.get_transport(), progress=progress)
+    try:
+        scp_client.put(source_file, destination_file)
+        print(str(source_file))
+    except Exception as err:
+        log_err(err)
+    finally:
+        scp_client.close()
 
 
 """
