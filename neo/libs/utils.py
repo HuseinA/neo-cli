@@ -14,6 +14,7 @@ import errno
 from prompt_toolkit import prompt
 from prompt_toolkit.contrib.completers import WordCompleter
 
+
 def do_deploy_dir(manifest_file):
     try:
         manifest = {}
@@ -187,19 +188,26 @@ def list_dir(dirname):
     return listdir
 
 
-def ssh_connect(hostname, user, key_file):
-    key = paramiko.RSAKey.from_private_key_file(key_file)
+def ssh_connect(hostname, user, password=None, key_file=None, passphrase=None):
+    if key_file:
+        key = paramiko.RSAKey.from_private_key_file(
+            filename=key_file, password=passphrase)
+    else:
+        key = None
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname, username=user, pkey=key)
+    client.connect(hostname, username=user, pkey=key,
+                   password=password, passphrase=passphrase)
     log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
     return client
 
 
-def ssh_out_stream(hostname, user, key_file, commands):
-    client = ssh_connect(hostname, user, key_file)
+def ssh_out_stream(hostname, user, commands, password=None, key_file=None, passphrase=None):
+    client = ssh_connect(hostname, user, password=password,
+                         key_file=key_file, passphrase=passphrase)
     channel = client.get_transport().open_session()
+    # log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
     channel.exec_command(commands)
     while True:
@@ -211,15 +219,18 @@ def ssh_out_stream(hostname, user, key_file, commands):
 
 
 """
-Put all file from directory to remote servers
-scp_put(str(hostname),str(user),str(key file),list(source_files),str(destination_to_remoteserver))
-Examples :
-scp_put("192.168.0.1","user","key.pem",list_dir("."),"/home/user")
+    Put all file from directory to remote servers
+    scp_put(str(hostname),str(user),list(source_files),str(destination_to_remoteserver),str(password),str(key file),str(key passphrase))
+    Examples :
+    scp_put("192.168.0.1","user",list_dir("."),"/home/user",key_file="key.pem")
+    or
+    scp_put("192.168.0.1","user",list_dir("."),"/home/user",password="mypassword")
 """
 
 
-def scp_put(hostname, user, key_file,  source_files, destination_folder):
-    client = ssh_connect(hostname, user, key_file)
+def scp_put(hostname, user, source_files, destination_folder, password=None, key_file=None, passphrase=None):
+    client = ssh_connect(hostname, user, password=password,
+                         key_file=key_file, passphrase=passphrase)
 
     # Define progress callback that prints the current percentage completed for the file
     def progress(filename, size, sent):
@@ -247,6 +258,7 @@ def scp_put(hostname, user, key_file,  source_files, destination_folder):
             log_err('file not found')
     scp_client.close()
     sftp_client.close()
+
 
 """
 Generate text user interface:
@@ -282,6 +294,7 @@ def form_generator(form_title, fields):
 
     return npyscreen.wrapper_basic(myFunction)
 
+
 def prompt_generator(form_title, fields):
     if os.name == 'nt':
         os.system('cls')
@@ -301,11 +314,12 @@ def prompt_generator(form_title, fields):
 
             while text not in field['values']:
                 text = prompt('Enter your choice : ', completer=completer)
-            data[field['key']]= text
+            data[field['key']] = text
         else:
             data[field['key']] = prompt('{} : '.format(field['name']))
         print('------------------------------')
     return data
+
 
 def isint(number):
     try:
