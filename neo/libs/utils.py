@@ -210,6 +210,14 @@ def ssh_out_stream(hostname, user, key_file, commands):
             print(channel.recv(1028).decode("utf-8"))
 
 
+"""
+Put all file from directory to remote servers
+scp_put(str(hostname),str(user),str(key file),list(source_files),str(destination_to_remoteserver))
+Examples :
+scp_put("192.168.0.1","user","key.pem",list_dir("."),"/home/user")
+"""
+
+
 def scp_put(hostname, user, key_file,  source_files, destination_folder):
     client = ssh_connect(hostname, user, key_file)
 
