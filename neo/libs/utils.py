@@ -315,6 +315,9 @@ def prompt_generator(form_title, fields):
             while text not in field['values']:
                 text = prompt('Enter your choice : ', completer=completer)
             data[field['key']] = text
+        elif field['type'] == 'TitlePassword':
+            data[field['key']] = prompt(
+                '{} : '.format(field['name']), is_password=True)
         else:
             data[field['key']] = prompt('{} : '.format(field['name']))
         print('------------------------------')
