@@ -1,35 +1,26 @@
 import os
 from .base import Base
-from neo.libs import utils, ncurses
+from neo.libs import utils
 from neo.libs import orchestration as orch
 from tabulate import tabulate
 
 
-class Create(Base):
+class Update(Base):
     """
 usage:
-        create
-        create [-f PATH]
-        create [-t TEMPLATE]
+        update
+        update [-f PATH]
 
-Create stack
+Update stack metadata
 
 Options:
 -h --help                           Print usage
 -f PATH --file=PATH                 Set neo manifest file
--t TEMPLATE --template TEMPLATE     Create neo.yml, TEMPLATE is ENUM(clusters,instances,networks)
 
-Run 'neo create COMMAND --help' for more information on a command.
+Run 'neo update COMMAND --help' for more information on a command.
 """
 
     def execute(self):
-        if self.args["--template"]:
-            if self.args["--template"] in ('clusters', 'instances',
-                                           'networks'):
-                tmpl = self.args["--template"]
-                ncurses.init(stack=tmpl)
-            exit()
-
         headers = ["ID", "Name", "Status", "Created", "Updated"]
 
         set_file = self.args["--file"]
@@ -44,24 +35,13 @@ Run 'neo create COMMAND --help' for more information on a command.
 
         if not default_file:
             utils.log_err("Can't find neo.yml manifest file!")
-            q_stack = utils.question(
-                "Do you want to generate neo.yml manifest? ")
-
-            if q_stack:
-                print(ncurses.init())
-                q_deploy = utils.question("Continue to deploy? ")
-                if q_deploy:
-                    default_file = "neo.yml"
-                else:
-                    exit()
-            else:
-                exit()
+            exit()
 
         deploy_init = orch.initialize(default_file)
         try:
-            orch.do_create(deploy_init)
+            orch.do_update(deploy_init)
         except:
-            utils.log_err("Deploying Stack failed...")
+            utils.log_err("Update Stack failed...")
             exit()
 
         projects = utils.get_project(default_file)

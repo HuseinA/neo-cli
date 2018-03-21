@@ -1,0 +1,13 @@
+language: python
+python:
+- '3.6'
+install:
+- pip install -e .
+- pip install coverage pytest pytest-cov
+- python setup.py test
+script:
+- pytest
+before_install:
+- openssl aes-256-cbc -K $encrypted_214af5c02543_key -iv $encrypted_214af5c02543_iv
+  -in .test.env.enc -out tests/.test.env -d
+- mv tests/.test.env $HOME/.neo.env

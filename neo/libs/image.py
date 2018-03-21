@@ -10,3 +10,8 @@ def get_image_client():
 def get_list():
     img = get_image_client()
     return img.images.list()
+
+
+def detail(image_id):
+    img = get_image_client()
+    return img.images.get(image_id)

@@ -21,3 +21,13 @@ def do_delete(instance_id):
 def get_flavor():
     compute = get_nova_client()
     return compute.flavors.list()
+
+
+def detail_flavor(flavor_id):
+    compute = get_nova_client()
+    return compute.flavors.get(flavor_id)
+
+
+def get_keypairs():
+    compute = get_nova_client()
+    return compute.keypairs.list()

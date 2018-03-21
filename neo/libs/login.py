@@ -3,7 +3,7 @@ import os
 import dill
 from dotenv import load_dotenv
 from keystoneauth1.identity import v3
-from keystoneauth1 import session, plugin
+from keystoneauth1 import session
 from keystoneclient.v3 import client
 from neo.libs import utils
 
@@ -93,10 +93,13 @@ def do_login():
                 token = sess.get_token()
                 add_token(token)
                 load_env_file()
-                utils.log_info("Login Success")
+
+        utils.log_info("Login Success")
+        return True
     except Exception as e:
         utils.log_err(e)
         utils.log_err("Login Failed")
+        return False
 
 
 def do_logout():

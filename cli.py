@@ -1,5 +1,5 @@
 """
-Usage: 
+Usage:
   neo <command> [<args>...]
 
 Options:
@@ -7,13 +7,13 @@ Options:
   -v, --version                          Print version information and quit
 
 Commands:
-  login       Log in to a NEO Cloud 
+  login       Log in to a NEO Cloud
   logout      Log out from a NEO Cloud
   create      Deploying neo stack
   delete      Delete neo stack
   update      Update neo stack
-  logs        Delete your service
-  exec        sdasa
+  logs        Get logs data
+  exec        Attach your service
 
 Run 'neo COMMAND --help' for more information on a command.
 """

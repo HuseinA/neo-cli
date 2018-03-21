@@ -6,7 +6,13 @@ import shutil
 import paramiko
 import select
 import npyscreen
-import coloredlogs, logging
+import coloredlogs
+import logging
+import scp
+import sys
+import errno
+from prompt_toolkit import prompt
+from prompt_toolkit.contrib.completers import WordCompleter
 
 
 def do_deploy_dir(manifest_file):
@@ -60,7 +66,8 @@ def get_key(manifest_file):
                 "networks": [],
                 "deployments": [],
                 "clusters": [],
-                "instances": []
+                "instances": [],
+                "databases": []
             }
         }
 
@@ -85,6 +92,7 @@ def get_project(manifest_file):
     manifest += [deploy for deploy in key["stack"]["deployments"]]
     manifest += [cluster for cluster in key["stack"]["clusters"]]
     manifest += [instance for instance in key["stack"]["instances"]]
+    manifest += [database for database in key["stack"]["databases"]]
 
     return manifest
 
@@ -172,14 +180,48 @@ def log_err(stdin):
     logging.error(stdin)
 
 
-def ssh_out(hostname, user, key_file, commands):
-    key = paramiko.RSAKey.from_private_key_file(key_file)
+def list_dir(dirname):
+    listdir = list()
+    for root, dirs, files in os.walk(dirname):
+        for file in files:
+            listdir.append(os.path.join(root, file))
+    return listdir
+
+
+def ssh_connect(hostname, user, password=None, key_file=None, passphrase=None):
+    if key_file:
+        key = paramiko.RSAKey.from_private_key_file(
+            filename=key_file, password=passphrase)
+    else:
+        key = None
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname, username=user, pkey=key)
+    client.connect(
+        hostname,
+        username=user,
+        pkey=key,
+        password=password,
+        passphrase=passphrase)
     log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
+    return client
+
+
+def ssh_out_stream(hostname,
+                   user,
+                   commands,
+                   password=None,
+                   key_file=None,
+                   passphrase=None):
+    client = ssh_connect(
+        hostname,
+        user,
+        password=password,
+        key_file=key_file,
+        passphrase=passphrase)
     channel = client.get_transport().open_session()
+    # log_info("Connected...")
+    # Example : "tailf -n 50 /tmp/deploy.log"
     channel.exec_command(commands)
     while True:
         if channel.exit_status_ready():
@@ -187,6 +229,69 @@ def ssh_out(hostname, user, key_file, commands):
         rl, wl, xl = select.select([channel], [], [], 0.0)
         if len(rl) > 0:
             print(channel.recv(1028).decode("utf-8"))
+
+
+"""
+    Put all file from directory to remote servers
+    scp_put(str(hostname),str(user),list(source_files),
+    str(destination_to_remoteserver),str(password),str(key file),
+    str(key passphrase))
+    Examples :
+    scp_put("192.168.0.1","user",list_dir("."),"/home/user",key_file="key.pem")
+    or
+    scp_put("192.168.0.1","user",list_dir("."),"/home/user",password="mypassword")
+"""
+
+
+def scp_put(hostname,
+            user,
+            source_files,
+            destination_folder,
+            password=None,
+            key_file=None,
+            passphrase=None):
+    client = ssh_connect(
+        hostname,
+        user,
+        password=password,
+        key_file=key_file,
+        passphrase=passphrase)
+    """ Define progress callback that prints the current percentage completed
+    for the file """
+
+    def progress(filename, size, sent):
+        sys.stdout.write("upload progress: %.2f%%   \r" %
+                         (float(sent) / float(size) * 100))
+
+    scp_client = scp.SCPClient(client.get_transport(), progress=progress)
+    sftp_client = paramiko.SFTPClient.from_transport(client.get_transport())
+    for sf in source_files:
+        if os.path.isfile(sf):
+            try:
+                remote_file = os.path.join(destination_folder, sf)
+                file_dir = os.path.dirname(remote_file)
+                sftp_client.stat(remote_file)
+            except IOError as e:
+                if e.errno == errno.ENOENT:
+                    channel = client.get_transport().open_session()
+                    channel.exec_command('mkdir -p {}'.format(file_dir))
+                    scp_client.put(
+                        sf,
+                        remote_file,
+                        recursive=True,
+                    )
+            else:
+                scp_client.put(
+                    sf,
+                    remote_file,
+                    recursive=True,
+                )
+            finally:
+                print(str(sf))
+        else:
+            log_err('file not found')
+    scp_client.close()
+    sftp_client.close()
 
 
 """
@@ -224,6 +329,35 @@ def form_generator(form_title, fields):
     return npyscreen.wrapper_basic(myFunction)
 
 
+def prompt_generator(form_title, fields):
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+
+    print(form_title)
+
+    data = {}
+    for field in fields:
+        if field['type'] == 'TitleSelectOne':
+            print('{} : '.format(field['name']))
+            completer = WordCompleter(field['values'], ignore_case=True)
+            for v in field['values']:
+                print('- {}'.format(v))
+            text = None
+
+            while text not in field['values']:
+                text = prompt('Enter your choice : ', completer=completer)
+            data[field['key']] = text
+        elif field['type'] == 'TitlePassword':
+            data[field['key']] = prompt(
+                '{} : '.format(field['name']), is_password=True)
+        else:
+            data[field['key']] = prompt('{} : '.format(field['name']))
+        print('------------------------------')
+    return data
+
+
 def isint(number):
     try:
         to_float = float(number)
@@ -236,7 +370,7 @@ def isint(number):
 
 def isfloat(number):
     try:
-        to_float = float(number)
+        float(number)
     except ValueError:
         return False
     else:
