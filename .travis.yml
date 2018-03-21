@@ -4,7 +4,7 @@ python:
 # command to install dependencies
 install:
   - pip install -e .
-  - pip install -e .[extra]
+  - pip install coverage pytest pytest-cov
   - python setup.py test
 # command to run tests
 script:
