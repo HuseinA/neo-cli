@@ -1,11 +1,13 @@
 language: python
 python:
-  - "3.6"
-# command to install dependencies
+- '3.6'
 install:
-  - pip install -e .
-  - pip install coverage pytest pytest-cov
-  - python setup.py test
-# command to run tests
+- pip install -e .
+- pip install coverage pytest pytest-cov
+- python setup.py test
 script:
-  - pytest # or py.test for Python versions 3.5 and below
+- pytest
+before_install:
+- openssl aes-256-cbc -K $encrypted_214af5c02543_key -iv $encrypted_214af5c02543_iv
+  -in .test.env.enc -out tests/.test.env -d
+- mv tests/.test.env $HOME/.neo.env
