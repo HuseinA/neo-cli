@@ -93,10 +93,13 @@ def do_login():
                 token = sess.get_token()
                 add_token(token)
                 load_env_file()
-                utils.log_info("Login Success")
+
+        utils.log_info("Login Success")
+        return True
     except Exception as e:
         utils.log_err(e)
         utils.log_err("Login Failed")
+        return False
 
 
 def do_logout():
