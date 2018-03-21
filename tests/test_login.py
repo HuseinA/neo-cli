@@ -5,7 +5,7 @@ from unittest import TestCase
 from neo.libs import login
 
 
-class TestHello(TestCase):
-    def test_login(self):
+class TestLogin(TestCase):
+    def test_do_login(self):
         output = login.do_login()
         self.assertTrue(output)
