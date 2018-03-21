@@ -3,10 +3,12 @@
 from codecs import open
 from os.path import abspath, dirname, join
 from subprocess import call
-
 from setuptools import Command, find_packages, setup
-
+from pip.req import parse_requirements
 from neo import __version__
+
+install_reqs = parse_requirements('requirements.txt', session='hack')
+reqs = [str(ir.req) for ir in install_reqs]
 
 this_dir = abspath(dirname(__file__))
 with open(join(this_dir, 'README.md'), encoding='utf-8') as file:
@@ -55,7 +57,7 @@ setup(
     ],
     keywords='cli',
     packages=find_packages(exclude=['docs', 'tests*']),
-    install_requires=['docopt', 'click'],
+    install_requires=reqs,
     extras_require={
         'test': ['coverage', 'pytest', 'pytest-cov'],
     },
