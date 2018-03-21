@@ -10,7 +10,7 @@ from .base import Base
 from docopt import docopt
 from neo.libs import network as network_lib
 from neo.libs import vm as vm_lib
-from neo.libs import utils,image
+from neo.libs import utils, image
 from neo.libs import orchestration as orch
 from tabulate import tabulate
 
@@ -35,5 +35,5 @@ Run 'neo exec COMMAND --help' for more information on a command.
     def execute(self):
 
         if self.args["--network"]:
-            
+
             exit()

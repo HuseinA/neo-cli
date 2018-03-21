@@ -1,5 +1,5 @@
 import os
-from neo.libs import utils, image, vm, orchestration, network
+from neo.libs import utils, image, vm, network
 
 
 def get_flavor():
@@ -31,7 +31,10 @@ def get_key():
 
 
 def get_network():
-    return [net['name'] for net in network.get_list() if net['name'] != 'Public_Network']
+    return [
+        net['name'] for net in network.get_list()
+        if net['name'] != 'Public_Network'
+    ]
 
 
 def get_stack():

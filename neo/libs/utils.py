@@ -196,16 +196,29 @@ def ssh_connect(hostname, user, password=None, key_file=None, passphrase=None):
         key = None
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname, username=user, pkey=key,
-                   password=password, passphrase=passphrase)
+    client.connect(
+        hostname,
+        username=user,
+        pkey=key,
+        password=password,
+        passphrase=passphrase)
     log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
     return client
 
 
-def ssh_out_stream(hostname, user, commands, password=None, key_file=None, passphrase=None):
-    client = ssh_connect(hostname, user, password=password,
-                         key_file=key_file, passphrase=passphrase)
+def ssh_out_stream(hostname,
+                   user,
+                   commands,
+                   password=None,
+                   key_file=None,
+                   passphrase=None):
+    client = ssh_connect(
+        hostname,
+        user,
+        password=password,
+        key_file=key_file,
+        passphrase=passphrase)
     channel = client.get_transport().open_session()
     # log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
@@ -220,7 +233,9 @@ def ssh_out_stream(hostname, user, commands, password=None, key_file=None, passp
 
 """
     Put all file from directory to remote servers
-    scp_put(str(hostname),str(user),list(source_files),str(destination_to_remoteserver),str(password),str(key file),str(key passphrase))
+    scp_put(str(hostname),str(user),list(source_files),
+    str(destination_to_remoteserver),str(password),str(key file),
+    str(key passphrase))
     Examples :
     scp_put("192.168.0.1","user",list_dir("."),"/home/user",key_file="key.pem")
     or
@@ -228,14 +243,25 @@ def ssh_out_stream(hostname, user, commands, password=None, key_file=None, passp
 """
 
 
-def scp_put(hostname, user, source_files, destination_folder, password=None, key_file=None, passphrase=None):
-    client = ssh_connect(hostname, user, password=password,
-                         key_file=key_file, passphrase=passphrase)
+def scp_put(hostname,
+            user,
+            source_files,
+            destination_folder,
+            password=None,
+            key_file=None,
+            passphrase=None):
+    client = ssh_connect(
+        hostname,
+        user,
+        password=password,
+        key_file=key_file,
+        passphrase=passphrase)
+    """ Define progress callback that prints the current percentage completed
+    for the file """
 
-    # Define progress callback that prints the current percentage completed for the file
     def progress(filename, size, sent):
         sys.stdout.write("upload progress: %.2f%%   \r" %
-                         (float(sent)/float(size)*100))
+                         (float(sent) / float(size) * 100))
 
     scp_client = scp.SCPClient(client.get_transport(), progress=progress)
     sftp_client = paramiko.SFTPClient.from_transport(client.get_transport())
@@ -249,9 +275,17 @@ def scp_put(hostname, user, source_files, destination_folder, password=None, key
                 if e.errno == errno.ENOENT:
                     channel = client.get_transport().open_session()
                     channel.exec_command('mkdir -p {}'.format(file_dir))
-                    scp_client.put(sf, remote_file, recursive=True,)
+                    scp_client.put(
+                        sf,
+                        remote_file,
+                        recursive=True,
+                    )
             else:
-                scp_client.put(sf, remote_file, recursive=True,)
+                scp_client.put(
+                    sf,
+                    remote_file,
+                    recursive=True,
+                )
             finally:
                 print(str(sf))
         else:
@@ -336,7 +370,7 @@ def isint(number):
 
 def isfloat(number):
     try:
-        to_float = float(number)
+        float(number)
     except ValueError:
         return False
     else:

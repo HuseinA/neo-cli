@@ -1,22 +1,14 @@
-import click
-import getpass
-import subprocess
-import requests
 import os
-import re
-from json import dumps
 from .base import Base
-from docopt import docopt
 from neo.libs import network as network_lib
 from neo.libs import vm as vm_lib
 from neo.libs import utils
 from neo.libs import orchestration as orch
-from tabulate import tabulate
 
 
 class Rm(Base):
     """
-usage: 
+usage:
     rm [-f PATH] [-m|-n ID]
 
 Remove Stack, VM, or Network
@@ -31,7 +23,6 @@ Run 'neo rm COMMAND --help' for more information on a command.
 """
 
     def execute(self):
-        headers = ["ID", "Name", "Status", "Created", "Updated"]
 
         set_file = self.args["--file"]
         default_file = orch.check_manifest_file()

@@ -1,4 +1,4 @@
-from neo.libs import login as login_lib,image
+from neo.libs import login as login_lib
 from novaclient import client as nova_client
 
 

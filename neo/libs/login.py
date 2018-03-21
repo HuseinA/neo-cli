@@ -3,7 +3,7 @@ import os
 import dill
 from dotenv import load_dotenv
 from keystoneauth1.identity import v3
-from keystoneauth1 import session, plugin
+from keystoneauth1 import session
 from keystoneclient.v3 import client
 from neo.libs import utils
 
