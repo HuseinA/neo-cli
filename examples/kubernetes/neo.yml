@@ -2,5 +2,9 @@ clusters:
   neo-k8s:
     template: "kubernetes"
     parameters:
+      master_flavor: SS2.1
+      worker_flavor: SS2.1
       master_size: 1
       worker_size: 1
+deploy:
+  - clusters.neo-k8s
