@@ -1,8 +1,10 @@
 exclude .gitignore
 exclude .coverage
 exclude .travis.yml
-include README.rst
+include README.md
 include setup.cfg
+include requirements.txt
+include cli.py
 prune .cache
 prune .git
 prune build
