@@ -11,6 +11,10 @@ import logging
 import scp
 import sys
 import errno
+import fcntl
+import termios
+import struct
+import threading
 from prompt_toolkit import prompt
 from prompt_toolkit.contrib.completers import WordCompleter
 
@@ -104,7 +108,7 @@ def template_git(url, dir):
             shutil.rmtree(dir)
 
         git.Repo.clone_from(url, dir)
-        real_url = os.path.dirname(os.path.realpath(dir))
+        # real_url = os.path.dirname(os.path.realpath(dir))
 
         return True
 
@@ -188,6 +192,14 @@ def list_dir(dirname):
     return listdir
 
 
+def terminal_size():
+    th, tw, hp, wp = struct.unpack('HHHH',
+                                   fcntl.ioctl(0, termios.TIOCGWINSZ,
+                                               struct.pack('HHHH', 0, 0, 0,
+                                                           0)))
+    return tw, th
+
+
 def ssh_connect(hostname, user, password=None, key_file=None, passphrase=None):
     if key_file:
         key = paramiko.RSAKey.from_private_key_file(
@@ -196,12 +208,7 @@ def ssh_connect(hostname, user, password=None, key_file=None, passphrase=None):
         key = None
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(
-        hostname,
-        username=user,
-        pkey=key,
-        password=password,
-        passphrase=passphrase)
+    client.connect(hostname, username=user, pkey=key, password=password)
     log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
     return client
@@ -229,6 +236,30 @@ def ssh_out_stream(hostname,
         rl, wl, xl = select.select([channel], [], [], 0.0)
         if len(rl) > 0:
             print(channel.recv(1028).decode("utf-8"))
+
+
+def ssh_shell(hostname, user, password=None, key_file=None, passphrase=None):
+    client = ssh_connect(
+        hostname,
+        user,
+        password=password,
+        key_file=key_file,
+        passphrase=passphrase)
+    command = None
+    shell = client.invoke_shell()
+    shell.set_combine_stderr(True)
+    while command != 'exit':
+        if command:
+            shell.send(command + "\n")
+
+        resp = ''
+        while (not resp.endswith(']$ ')) and (not resp.endswith(']# ')):
+            out_shell = shell.recv(9999)
+            resp += out_shell.decode("utf-8")
+
+        command = input(resp)
+
+    client.close()
 
 
 """
