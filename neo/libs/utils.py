@@ -495,6 +495,7 @@ def prompt_generator(form_title, fields):
 
             while text not in field['values']:
                 text = prompt('Enter your choice : ', completer=completer)
+
             data[field['key']] = text
         elif field['type'] == 'TitleSelect':
             print('{} : '.format(field['name']))
