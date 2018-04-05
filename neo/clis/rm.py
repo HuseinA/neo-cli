@@ -9,15 +9,19 @@ from neo.libs import orchestration as orch
 class Rm(Base):
     """
 usage:
-    rm [-f PATH] [-m|-n ID]
+    rm [-f PATH]
+    rm vm <VM_ID>
+    rm network <NETWORK_ID>
 
 Remove Stack, VM, or Network
 
 Options:
 -h --help                       Print usage
 -f PATH --file=PATH             Set neo manifest file
--m ID --virtual-machine ID      Delete virtual machine
--n ID --network ID              Delete network
+
+Commands:
+ vm VM_ID                       List all virtual machines
+ network NETWORK_ID             List all network
 
 Run 'neo rm COMMAND --help' for more information on a command.
 """
@@ -27,8 +31,8 @@ Run 'neo rm COMMAND --help' for more information on a command.
         set_file = self.args["--file"]
         default_file = orch.check_manifest_file()
 
-        if self.args["--virtual-machine"]:
-            instance_id = self.args["--virtual-machine"]
+        if self.args["vm"]:
+            instance_id = self.args["<VM_ID>"]
             try:
                 answer = ""
                 while answer not in ["y", "n"]:
@@ -47,8 +51,8 @@ Run 'neo rm COMMAND --help' for more information on a command.
                 pass
             exit()
 
-        if self.args["--network"]:
-            network_id = self.args["--network"]
+        if self.args["network"]:
+            network_id = self.args["NETWORK_ID"]
             try:
                 answer = ""
                 while answer not in ["y", "n"]:
@@ -71,10 +75,12 @@ Run 'neo rm COMMAND --help' for more information on a command.
                 default_file = "{}".format(set_file)
             else:
                 utils.log_err("{} file is not exists!".format(set_file))
+                print(self.__doc__)
                 exit()
 
         if not default_file:
             utils.log_err("Can't find neo.yml manifest file!")
+            print(self.__doc__)
             exit()
 
         projects = utils.get_project(default_file)
@@ -91,3 +97,4 @@ Run 'neo rm COMMAND --help' for more information on a command.
                     utils.log_info("Stack {} has been deleted".format(project))
                 else:
                     utils.log_err("Stack {} is not exists".format(project))
+                    print(self.__doc__)

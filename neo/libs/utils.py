@@ -16,6 +16,7 @@ import termios
 import struct
 import socket
 import traceback
+import getpass
 from binascii import hexlify
 from prompt_toolkit import prompt
 from prompt_toolkit.contrib.completers import WordCompleter
@@ -224,6 +225,40 @@ def agent_auth(transport, username):
             log_err('... nope.')
 
 
+def manual_auth(username, hostname, client):
+    default_auth = 'p'
+    auth = input(
+        'Auth by (p)assword, (r)sa key, or (d)ss key? [%s] ' % default_auth)
+    if len(auth) == 0:
+        auth = default_auth
+
+    if auth == 'r':
+        default_path = os.path.join(os.environ['HOME'], '.ssh', 'id_rsa')
+        path = input('RSA key [%s]: ' % default_path)
+        if len(path) == 0:
+            path = default_path
+        try:
+            key = paramiko.RSAKey.from_private_key_file(path)
+        except paramiko.PasswordRequiredException:
+            password = getpass.getpass('RSA key password: ')
+            key = paramiko.RSAKey.from_private_key_file(path, password)
+        client.auth_publickey(username, key)
+    elif auth == 'd':
+        default_path = os.path.join(os.environ['HOME'], '.ssh', 'id_dsa')
+        path = input('DSS key [%s]: ' % default_path)
+        if len(path) == 0:
+            path = default_path
+        try:
+            key = paramiko.DSSKey.from_private_key_file(path)
+        except paramiko.PasswordRequiredException:
+            password = getpass.getpass('DSS key password: ')
+            key = paramiko.DSSKey.from_private_key_file(path, password)
+        client.auth_publickey(username, key)
+    else:
+        pw = getpass.getpass('Password for %s@%s: ' % (username, hostname))
+        client.auth_password(username, pw)
+
+
 def ssh_connect(hostname,
                 user,
                 password=None,
@@ -273,6 +308,8 @@ def ssh_connect(hostname,
             else:
                 client.auth_password(user, password)
 
+        if not client.is_authenticated():
+            manual_auth(user, hostname, client)
         if not client.is_authenticated():
             log_err('*** Authentication failed. :(')
             client.close()
@@ -459,6 +496,13 @@ def prompt_generator(form_title, fields):
             while text not in field['values']:
                 text = prompt('Enter your choice : ', completer=completer)
             data[field['key']] = text
+        elif field['type'] == 'TitleSelect':
+            print('{} : '.format(field['name']))
+            completer = WordCompleter(field['values'], ignore_case=True)
+            for v in field['values']:
+                print('- {}'.format(v))
+            data[field['key']] = prompt(
+                'Enter your choice or create new : ', completer=completer)
         elif field['type'] == 'TitlePassword':
             data[field['key']] = prompt(
                 '{} : '.format(field['name']), is_password=True)

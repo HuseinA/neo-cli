@@ -10,10 +10,9 @@ Commands:
   login       Log in to a NEO Cloud
   logout      Log out from a NEO Cloud
   create      Deploying neo stack
-  delete      Delete neo stack
+  ls          List all stack, network, machine
+  rm          Delete stack, network, machine
   update      Update neo stack
-  logs        Get logs data
-  exec        Attach your service
 
 Run 'neo COMMAND --help' for more information on a command.
 """
@@ -22,7 +21,6 @@ from inspect import getmembers, isclass
 from docopt import docopt
 # from docopt import DocoptExit
 from neo import __version__ as VERSION
-import subprocess
 
 
 def main():
