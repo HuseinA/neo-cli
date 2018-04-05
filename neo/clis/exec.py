@@ -36,5 +36,5 @@ Run 'neo exec COMMAND --help' for more information on a command.
 
         if self.args["--network"]:
             # print(utils.terminal_size())
-            utils.ssh_shell('', '', '')
+
             exit()

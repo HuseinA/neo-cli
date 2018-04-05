@@ -14,9 +14,12 @@ import errno
 import fcntl
 import termios
 import struct
-import threading
+import socket
+import traceback
+from binascii import hexlify
 from prompt_toolkit import prompt
 from prompt_toolkit.contrib.completers import WordCompleter
+from neo.libs import interactive_ssh_utils as interactive
 
 
 def do_deploy_dir(manifest_file):
@@ -200,18 +203,90 @@ def terminal_size():
     return tw, th
 
 
-def ssh_connect(hostname, user, password=None, key_file=None, passphrase=None):
+def agent_auth(transport, username):
+    """
+    Attempt to authenticate to the given transport using any of the private
+    keys available from an SSH agent.
+    """
+
+    agent = paramiko.Agent()
+    agent_keys = agent.get_keys()
+    if len(agent_keys) == 0:
+        return
+
+    for key in agent_keys:
+        log_info('Trying ssh-agent key %s' % hexlify(key.get_fingerprint()))
+        try:
+            transport.auth_publickey(username, key)
+            log_info('... success!')
+            return
+        except paramiko.SSHException:
+            log_err('... nope.')
+
+
+def ssh_connect(hostname,
+                user,
+                password=None,
+                key_file=None,
+                passphrase=None,
+                socket=None):
     if key_file:
-        key = paramiko.RSAKey.from_private_key_file(
+        neo_key = paramiko.RSAKey.from_private_key_file(
             filename=key_file, password=passphrase)
     else:
-        key = None
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname, username=user, pkey=key, password=password)
-    log_info("Connected...")
-    # Example : "tailf -n 50 /tmp/deploy.log"
-    return client
+        neo_key = None
+
+    if socket:
+        client = paramiko.Transport(socket)
+        try:
+            client.start_client()
+        except paramiko.SSHException:
+            print('*** SSH negotiation failed.')
+            sys.exit(1)
+        try:
+            keys = paramiko.util.load_host_keys(
+                os.path.expanduser('~/.ssh/known_hosts'))
+        except IOError:
+            try:
+                keys = paramiko.util.load_host_keys(
+                    os.path.expanduser('~/ssh/known_hosts'))
+            except IOError:
+                print('*** Unable to open host keys file')
+                keys = {}
+
+        # check server's host key -- this is important.
+        key = client.get_remote_server_key()
+        if hostname not in keys:
+            log_warn('*** WARNING: Unknown host key!')
+        elif key.get_name() not in keys[hostname]:
+            log_warn('*** WARNING: Unknown host key!')
+        elif keys[hostname][key.get_name()] != key:
+            log_warn('*** WARNING: Host key has changed!!!')
+            sys.exit(1)
+        else:
+            log_info('*** Host key OK.')
+
+        agent_auth(client, user)
+        if not client.is_authenticated():
+            if neo_key:
+                client.auth_publickey(user, neo_key)
+            else:
+                client.auth_password(user, password)
+
+        if not client.is_authenticated():
+            log_err('*** Authentication failed. :(')
+            client.close()
+            sys.exit(1)
+        return client
+
+    else:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(
+            hostname, username=user, pkey=neo_key, password=password)
+        log_info("Connected...")
+        # Example : "tailf -n 50 /tmp/deploy.log"
+        return client
 
 
 def ssh_out_stream(hostname,
@@ -238,28 +313,32 @@ def ssh_out_stream(hostname,
             print(channel.recv(1028).decode("utf-8"))
 
 
-def ssh_shell(hostname, user, password=None, key_file=None, passphrase=None):
+def ssh_shell(hostname,
+              user,
+              password=None,
+              port=22,
+              key_file=None,
+              passphrase=None):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((hostname, port))
+    except Exception as e:
+        print('*** Connect failed: ' + str(e))
+        traceback.print_exc()
+        sys.exit(1)
+
     client = ssh_connect(
         hostname,
         user,
         password=password,
         key_file=key_file,
-        passphrase=passphrase)
-    command = None
-    shell = client.invoke_shell()
-    shell.set_combine_stderr(True)
-    while command != 'exit':
-        if command:
-            shell.send(command + "\n")
-
-        resp = ''
-        while (not resp.endswith(']$ ')) and (not resp.endswith(']# ')):
-            out_shell = shell.recv(9999)
-            resp += out_shell.decode("utf-8")
-
-        command = input(resp)
-
-    client.close()
+        passphrase=passphrase,
+        socket=sock)
+    chan = client.open_session()
+    chan.get_pty()
+    chan.invoke_shell()
+    interactive.interactive_shell(chan)
+    chan.close()
 
 
 """
