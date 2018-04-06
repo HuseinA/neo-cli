@@ -227,8 +227,12 @@ def agent_auth(transport, username):
 
 def manual_auth(username, hostname, client):
     default_auth = 'p'
-    auth = input(
-        'Auth by (p)assword, (r)sa key, or (d)ss key? [%s] ' % default_auth)
+    try:
+        auth = input('Auth by (p)assword, (r)sa key, or (d)ss key? [%s] ' %
+                     default_auth)
+    except KeyboardInterrupt:
+        sys.exit()
+
     if len(auth) == 0:
         auth = default_auth
 
@@ -305,11 +309,11 @@ def ssh_connect(hostname,
         if not client.is_authenticated():
             if neo_key:
                 client.auth_publickey(user, neo_key)
-            else:
+            elif password:
                 client.auth_password(user, password)
+            else:
+                manual_auth(user, hostname, client)
 
-        if not client.is_authenticated():
-            manual_auth(user, hostname, client)
         if not client.is_authenticated():
             log_err('*** Authentication failed. :(')
             client.close()
@@ -357,6 +361,7 @@ def ssh_shell(hostname,
               key_file=None,
               passphrase=None):
     try:
+        port = port
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((hostname, port))
     except Exception as e:

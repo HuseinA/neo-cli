@@ -10,33 +10,35 @@ from tabulate import tabulate
 class Exec(Base):
     """
 usage:
-        exec [-n] [-m VM_ID]
-        exec
+        exec ssh <USER@HOSTS>
         exec vm <VM_ID>
-        exec network <NETWORK_ID>
+        exec stack <STACK_NAME>
 
-List all stack
+Remote service for stack controller, virtual machine, or ssh machine
 
 Options:
--h --help                            Print usage
--k KEY_FILE --key-file=KEY_FILE      Set neo manifest file
--a --all                             List all Stacks
--m VM_ID --virtual-machine VM_ID     List all Virtual Machines
--n --network                         List all Networks
+-k KEY_FILE --key=KEY_FILE            Setup keyfile to ssh service
 
 Commands:
-  vm ID                              List all Networks
+  vm <VM_ID>                          Remote to Virtual Machine
+  stack <STACK_NAME>                  Remote to stack controller
+  ssh <USER@HOSTS>                    Use ssh to remote machines
 
 Run 'neo exec COMMAND --help' for more information on a command.
 """
 
     def execute(self):
-        print(self.args)
-        print(self.__doc__)
-        if self.args["--network"]:
-            # print(vm_lib.get_list()[1].to_dict())
-            print(
-                vm_lib.detail("fcfdd0c0-a522-48e9-a4fc-6f030283d3d5")
-                .to_dict())
-            """["key_name"]"""
-            exit()
+        if self.args["ssh"]:
+            cridential = self.args["<USER@HOSTS>"].split("@")
+            if len(cridential) != 2:
+                print(self.__doc__)
+                exit(0)
+
+            user = cridential[0]
+            hostname = cridential[1]
+            utils.ssh_shell(hostname, user)
+        if self.args["vm"]:
+            vm_id = self.args["VM_ID"]
+            """
+                cek vm metadata from stack
+            """
