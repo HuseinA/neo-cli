@@ -206,11 +206,11 @@ def dump(data):
 
 def init(stack=None, project=None):
     select_stack = stack
-    while not select_stack:
+    if not select_stack:
         select_stack = get_stack()
 
     select_project = project
-    while not select_project:
+    if not select_project:
         select_project = get_project(select_stack)
 
     fields = exec_form(select_stack, select_project)
