@@ -11,8 +11,16 @@ import logging
 import scp
 import sys
 import errno
+import fcntl
+import termios
+import struct
+import socket
+import traceback
+import getpass
+from binascii import hexlify
 from prompt_toolkit import prompt
 from prompt_toolkit.contrib.completers import WordCompleter
+from neo.libs import interactive_ssh_utils as interactive
 
 
 def do_deploy_dir(manifest_file):
@@ -104,7 +112,7 @@ def template_git(url, dir):
             shutil.rmtree(dir)
 
         git.Repo.clone_from(url, dir)
-        real_url = os.path.dirname(os.path.realpath(dir))
+        # real_url = os.path.dirname(os.path.realpath(dir))
 
         return True
 
@@ -188,23 +196,138 @@ def list_dir(dirname):
     return listdir
 
 
-def ssh_connect(hostname, user, password=None, key_file=None, passphrase=None):
+def terminal_size():
+    th, tw, hp, wp = struct.unpack('HHHH',
+                                   fcntl.ioctl(0, termios.TIOCGWINSZ,
+                                               struct.pack('HHHH', 0, 0, 0,
+                                                           0)))
+    return tw, th
+
+
+def agent_auth(transport, username):
+    """
+    Attempt to authenticate to the given transport using any of the private
+    keys available from an SSH agent.
+    """
+
+    agent = paramiko.Agent()
+    agent_keys = agent.get_keys()
+    if len(agent_keys) == 0:
+        return
+
+    for key in agent_keys:
+        log_info('Trying ssh-agent key %s' % hexlify(key.get_fingerprint()))
+        try:
+            transport.auth_publickey(username, key)
+            log_info('... success!')
+            return
+        except paramiko.SSHException:
+            log_err('... nope.')
+
+
+def manual_auth(username, hostname, client):
+    default_auth = 'p'
+    try:
+        auth = input('Auth by (p)assword, (r)sa key, or (d)ss key? [%s] ' %
+                     default_auth)
+    except KeyboardInterrupt:
+        sys.exit()
+
+    if len(auth) == 0:
+        auth = default_auth
+
+    if auth == 'r':
+        default_path = os.path.join(os.environ['HOME'], '.ssh', 'id_rsa')
+        path = input('RSA key [%s]: ' % default_path)
+        if len(path) == 0:
+            path = default_path
+        try:
+            key = paramiko.RSAKey.from_private_key_file(path)
+        except paramiko.PasswordRequiredException:
+            password = getpass.getpass('RSA key password: ')
+            key = paramiko.RSAKey.from_private_key_file(path, password)
+        client.auth_publickey(username, key)
+    elif auth == 'd':
+        default_path = os.path.join(os.environ['HOME'], '.ssh', 'id_dsa')
+        path = input('DSS key [%s]: ' % default_path)
+        if len(path) == 0:
+            path = default_path
+        try:
+            key = paramiko.DSSKey.from_private_key_file(path)
+        except paramiko.PasswordRequiredException:
+            password = getpass.getpass('DSS key password: ')
+            key = paramiko.DSSKey.from_private_key_file(path, password)
+        client.auth_publickey(username, key)
+    else:
+        pw = getpass.getpass('Password for %s@%s: ' % (username, hostname))
+        client.auth_password(username, pw)
+
+
+def ssh_connect(hostname,
+                user,
+                password=None,
+                key_file=None,
+                passphrase=None,
+                socket=None):
     if key_file:
-        key = paramiko.RSAKey.from_private_key_file(
+        neo_key = paramiko.RSAKey.from_private_key_file(
             filename=key_file, password=passphrase)
     else:
-        key = None
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(
-        hostname,
-        username=user,
-        pkey=key,
-        password=password,
-        passphrase=passphrase)
-    log_info("Connected...")
-    # Example : "tailf -n 50 /tmp/deploy.log"
-    return client
+        neo_key = None
+
+    if socket:
+        client = paramiko.Transport(socket)
+        try:
+            client.start_client()
+        except paramiko.SSHException:
+            print('*** SSH negotiation failed.')
+            sys.exit(1)
+        try:
+            keys = paramiko.util.load_host_keys(
+                os.path.expanduser('~/.ssh/known_hosts'))
+        except IOError:
+            try:
+                keys = paramiko.util.load_host_keys(
+                    os.path.expanduser('~/ssh/known_hosts'))
+            except IOError:
+                print('*** Unable to open host keys file')
+                keys = {}
+
+        # check server's host key -- this is important.
+        key = client.get_remote_server_key()
+        if hostname not in keys:
+            log_warn('*** WARNING: Unknown host key!')
+        elif key.get_name() not in keys[hostname]:
+            log_warn('*** WARNING: Unknown host key!')
+        elif keys[hostname][key.get_name()] != key:
+            log_warn('*** WARNING: Host key has changed!!!')
+            sys.exit(1)
+        else:
+            log_info('*** Host key OK.')
+
+        agent_auth(client, user)
+        if not client.is_authenticated():
+            if neo_key:
+                client.auth_publickey(user, neo_key)
+            elif password:
+                client.auth_password(user, password)
+            else:
+                manual_auth(user, hostname, client)
+
+        if not client.is_authenticated():
+            log_err('*** Authentication failed. :(')
+            client.close()
+            sys.exit(1)
+        return client
+
+    else:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(
+            hostname, username=user, pkey=neo_key, password=password)
+        log_info("Connected...")
+        # Example : "tailf -n 50 /tmp/deploy.log"
+        return client
 
 
 def ssh_out_stream(hostname,
@@ -229,6 +352,35 @@ def ssh_out_stream(hostname,
         rl, wl, xl = select.select([channel], [], [], 0.0)
         if len(rl) > 0:
             print(channel.recv(1028).decode("utf-8"))
+
+
+def ssh_shell(hostname,
+              user,
+              password=None,
+              port=22,
+              key_file=None,
+              passphrase=None):
+    try:
+        port = port
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((hostname, port))
+    except Exception as e:
+        print('*** Connect failed: ' + str(e))
+        traceback.print_exc()
+        sys.exit(1)
+
+    client = ssh_connect(
+        hostname,
+        user,
+        password=password,
+        key_file=key_file,
+        passphrase=passphrase,
+        socket=sock)
+    chan = client.open_session()
+    chan.get_pty()
+    chan.invoke_shell()
+    interactive.interactive_shell(chan)
+    chan.close()
 
 
 """
@@ -348,7 +500,15 @@ def prompt_generator(form_title, fields):
 
             while text not in field['values']:
                 text = prompt('Enter your choice : ', completer=completer)
+
             data[field['key']] = text
+        elif field['type'] == 'TitleSelect':
+            print('{} : '.format(field['name']))
+            completer = WordCompleter(field['values'], ignore_case=True)
+            for v in field['values']:
+                print('- {}'.format(v))
+            data[field['key']] = prompt(
+                'Enter your choice or create new : ', completer=completer)
         elif field['type'] == 'TitlePassword':
             data[field['key']] = prompt(
                 '{} : '.format(field['name']), is_password=True)

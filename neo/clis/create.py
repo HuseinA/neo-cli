@@ -1,6 +1,6 @@
 import os
 from .base import Base
-from neo.libs import utils, ncurses
+from neo.libs import utils, ncurses, prompt
 from neo.libs import orchestration as orch
 from tabulate import tabulate
 
@@ -8,9 +8,9 @@ from tabulate import tabulate
 class Create(Base):
     """
 usage:
-        create
+        create [-i]
         create [-f PATH]
-        create [-t TEMPLATE]
+        create [-t TEMPLATE] [-i]
 
 Create stack
 
@@ -18,6 +18,10 @@ Options:
 -h --help                           Print usage
 -f PATH --file=PATH                 Set neo manifest file
 -t TEMPLATE --template TEMPLATE     Create neo.yml, TEMPLATE is ENUM(clusters,instances,networks)
+-i --interactive                    Interactive form with ncurses mode
+
+Tips!
+    neo create -t instances         create instances
 
 Run 'neo create COMMAND --help' for more information on a command.
 """
@@ -27,7 +31,11 @@ Run 'neo create COMMAND --help' for more information on a command.
             if self.args["--template"] in ('clusters', 'instances',
                                            'networks'):
                 tmpl = self.args["--template"]
-                ncurses.init(stack=tmpl)
+
+                if self.args["--interactive"]:
+                    ncurses.init(stack=tmpl)
+                else:
+                    prompt.init(stack=tmpl)
             exit()
 
         headers = ["ID", "Name", "Status", "Created", "Updated"]
@@ -48,7 +56,10 @@ Run 'neo create COMMAND --help' for more information on a command.
                 "Do you want to generate neo.yml manifest? ")
 
             if q_stack:
-                print(ncurses.init())
+                if self.args["--interactive"]:
+                    print(ncurses.init())
+                else:
+                    print(prompt.init())
                 q_deploy = utils.question("Continue to deploy? ")
                 if q_deploy:
                     default_file = "neo.yml"
@@ -60,7 +71,8 @@ Run 'neo create COMMAND --help' for more information on a command.
         deploy_init = orch.initialize(default_file)
         try:
             orch.do_create(deploy_init)
-        except:
+        except Exception as e:
+            utils.log_err(e)
             utils.log_err("Deploying Stack failed...")
             exit()
 

@@ -197,7 +197,6 @@ def init(stack=None, project=None):
             f_form = eval(str(field["form"]))
             form = utils.form_generator("Setup {}".format(field["project"]),
                                         f_form)
-
             for k, v in form.items():
                 if isinstance(v.value, list):
                     for role in f_field:

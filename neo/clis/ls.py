@@ -11,30 +11,35 @@ from tabulate import tabulate
 class Ls(Base):
     """
 usage:
-        ls [-f PATH] [-a] [-m|-n]
+        ls [-f PATH]
+        ls stack
+        ls vm
+        ls network
 
 List all stack
 
 Options:
 -h --help               Print usage
 -f PATH --file=PATH     Set neo manifest file
--a --all                List all Stacks
--m --virtual-machine    List all Virtual Machines
--n --network            List all Networks
+
+Commands:
+ stack                  List all Stacks
+ vm                     List all virtual machines
+ network                List all network
 
 Run 'neo ls COMMAND --help' for more information on a command.
 """
 
     def execute(self):
         headers = ["ID", "Name", "Status", "Created", "Updated"]
-        if self.args["--all"]:
+        if self.args["stack"]:
             print(tabulate(orch.get_list(), headers=headers, tablefmt="grid"))
             exit()
 
         set_file = self.args["--file"]
         default_file = orch.check_manifest_file()
 
-        if self.args["--virtual-machine"]:
+        if self.args["vm"]:
             data_instance = list()
             for instance in vm_lib.get_list():
                 pre_instance = [instance.id, instance.name]
@@ -67,6 +72,7 @@ Run 'neo ls COMMAND --help' for more information on a command.
 
             if len(data_instance) == 0:
                 utils.log_err("No Data...")
+                print(self.__doc__)
                 exit()
             print(
                 tabulate(
@@ -78,12 +84,13 @@ Run 'neo ls COMMAND --help' for more information on a command.
                     tablefmt="grid"))
             exit()
 
-        if self.args["--network"]:
+        if self.args["network"]:
             data_network = [[
                 network['id'], network['name'], network['status']
             ] for network in network_lib.get_list()]
             if len(data_network) == 0:
                 utils.log_err("No Data...")
+                print(self.__doc__)
                 exit()
             print(
                 tabulate(
@@ -97,10 +104,12 @@ Run 'neo ls COMMAND --help' for more information on a command.
                 default_file = "{}".format(set_file)
             else:
                 utils.log_err("{} file is not exists!".format(set_file))
+                print(self.__doc__)
                 exit()
 
         if not default_file:
-            utils.log_err("Can't find neo.yml manifest file!")
+            utils.log_err("Oops!! Can't find neo.yml manifest file!")
+            print(self.__doc__)
             exit()
 
         projects = utils.get_project(default_file)
@@ -115,3 +124,4 @@ Run 'neo ls COMMAND --help' for more information on a command.
             print(tabulate(project_list, headers=headers, tablefmt="grid"))
         else:
             utils.log_err("No Data...")
+            print(self.__doc__)

@@ -13,6 +13,11 @@ def get_list():
     return instances
 
 
+def detail(vm_id):
+    compute = get_nova_client()
+    return compute.servers.get(vm_id)
+
+
 def do_delete(instance_id):
     compute = get_nova_client()
     compute.servers.delete(instance_id)

@@ -52,6 +52,7 @@ setup(
         'Programming Language :: Python :: 3.6'
     ],
     keywords='cli',
+    include_package_data=True,
     packages=find_packages(exclude=['docs', 'tests*']),
     install_requires=install_requires,
     extras_require={
