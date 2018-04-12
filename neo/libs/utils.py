@@ -75,7 +75,8 @@ def get_key(manifest_file):
                 "deployments": [],
                 "clusters": [],
                 "instances": [],
-                "databases": []
+                "databases": [],
+                "others": []
             }
         }
 
@@ -101,6 +102,7 @@ def get_project(manifest_file):
     manifest += [cluster for cluster in key["stack"]["clusters"]]
     manifest += [instance for instance in key["stack"]["instances"]]
     manifest += [database for database in key["stack"]["databases"]]
+    manifest += [other for other in key["stack"]["others"]]
 
     return manifest
 
@@ -366,8 +368,8 @@ def ssh_shell(hostname,
         sock.connect((hostname, port))
     except Exception as e:
         print('*** Connect failed: ' + str(e))
-        traceback.print_exc()
-        sys.exit(1)
+        # traceback.print_exc()
+        exit(0)
 
     client = ssh_connect(
         hostname,
@@ -482,10 +484,10 @@ def form_generator(form_title, fields):
 
 
 def prompt_generator(form_title, fields):
-    if os.name == 'nt':
-        os.system('cls')
-    else:
-        os.system('clear')
+    # if os.name == 'nt':
+    #     os.system('cls')
+    # else:
+    #     os.system('clear')
 
     print(form_title)
 

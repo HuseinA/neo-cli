@@ -97,4 +97,3 @@ Run 'neo rm COMMAND --help' for more information on a command.
                     utils.log_info("Stack {} has been deleted".format(project))
                 else:
                     utils.log_err("Stack {} is not exists".format(project))
-                    print(self.__doc__)

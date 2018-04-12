@@ -8,8 +8,7 @@ from tabulate import tabulate
 class Create(Base):
     """
 usage:
-        create [-i]
-        create [-f PATH]
+        create [-i] [-f PATH]
         create [-t TEMPLATE] [-i]
 
 Create stack

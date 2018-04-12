@@ -160,23 +160,23 @@ def do_update(initialize):
                     files=files)
             if (len(initialize) > 0):
                 time.sleep(8)
-            if deploy["stack"] == "clusters":
-                utils.log_info("Generate {} private key...".format(
-                    deploy["project"]))
-                wait_key = True
-                while wait_key:
-                    out = get_private_key(
-                        deploy["project"])["output"]["output_value"]
-                    if out:
-                        private_key_file = "{}/private_key.pem".format(
-                            deploy["dir"])
-                        with open(private_key_file, "w") as pkey:
-                            pkey.write(out)
-                            os.chmod(private_key_file, 0o600)
-                            utils.log_info("Done...")
-                        wait_key = False
-                    else:
-                        time.sleep(5)
+            # if deploy["stack"] == "clusters":
+            #     utils.log_info("Generate {} private key...".format(
+            #         deploy["project"]))
+            #     wait_key = True
+            #     while wait_key:
+            #         out = get_private_key(
+            #             deploy["project"])["output"]["output_value"]
+            #         if out:
+            #             private_key_file = "{}/private_key.pem".format(
+            #                 deploy["dir"])
+            #             with open(private_key_file, "w") as pkey:
+            #                 pkey.write(out)
+            #                 os.chmod(private_key_file, 0o600)
+            #                 utils.log_info("Done...")
+            #             wait_key = False
+            #         else:
+            #             time.sleep(5)
 
     except Exception as e:
         utils.log_err(e)
@@ -210,15 +210,48 @@ def get_stack(stack_name):
     return data_stack
 
 
+# def get_private_key(stack_name):
+#     heat = get_heat_client()
+#     private_key = None
+#     try:
+#         private_key = heat.stacks.output_show(stack_name, "private_key")
+#     except:
+#         pass
+#
+#     return private_key
+
 def get_private_key(stack_name):
     heat = get_heat_client()
     private_key = None
     try:
-        private_key = heat.stacks.output_show(stack_name, "private_key")
+        keyname = heat.stacks.output_show(stack_name, "key_name")["output"]["output_value"]
+        private_key = heat.stacks.output_show(keyname, "private_key")["output"]["output_value"]
     except:
         pass
 
     return private_key
+
+
+def get_metadata(stack_name,meta):
+    heat = get_heat_client()
+    hostname = None
+    try:
+        hostname = heat.stacks.output_show(stack_name, meta)["output"]["output_value"]
+    except:
+        pass
+
+    return hostname
+
+
+def get_meta_stack(stack_name):
+    heat = get_heat_client()
+    meta = None
+    try:
+        meta = heat.stacks.get(stack_name).outputs
+    except Exception as e:
+        pass
+
+    return meta
 
 
 def do_delete(stack_name):

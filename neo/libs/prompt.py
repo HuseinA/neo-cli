@@ -60,12 +60,12 @@ def get_project(templates):
         f_template = [
             {
                 "type": "TitleSelectOne",
-                "name": "Select template :",
+                "name": "-------------------",
                 "key": "template",
                 "values": d_template
             },
         ]
-        template = utils.prompt_generator("Templates", f_template)
+        template = utils.prompt_generator("Select Templates:", f_template)
         return template[f_template[0]["key"]]
     except:
         return None
@@ -85,10 +85,12 @@ def setup_form(stack, project, parent=None):
         init["parent"] = parent
 
     repo = utils.repodata()[stack][project]
-
     default_form_name = {"type": "TitleText", "name": "Name", "key": "name"}
     if utils.check_key(repo, "lists"):
         repo_lists = repo["lists"]
+        """
+            if type of 'repo_list' is list
+        """
         if isinstance(repo_lists, list):
             init["form"].append({
                 "type": "TitleSelect",
@@ -97,6 +99,9 @@ def setup_form(stack, project, parent=None):
                 "values": repo_lists
             })
         else:
+            """
+                if type of 'repo_list' is string
+            """
             repo_lists = globals()[repo["lists"]]()
             if len(repo_lists) > 0:
                 init["form"].append({
@@ -109,6 +114,7 @@ def setup_form(stack, project, parent=None):
                 init["form"].append(default_form_name)
     else:
         init["form"].append(default_form_name)
+
     if utils.check_key(repo, "parameters"):
         param = repo["parameters"]
         param_index = utils.get_index(param)
