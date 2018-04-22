@@ -15,7 +15,7 @@ import fcntl
 import termios
 import struct
 import socket
-import traceback
+# import traceback
 import getpass
 from binascii import hexlify
 from prompt_toolkit import prompt
@@ -46,7 +46,7 @@ def check_key(dict, val):
     try:
         if dict[val]:
             return True
-    except:
+    except Exception as e:
         return False
 
 
@@ -75,7 +75,8 @@ def get_key(manifest_file):
                 "deployments": [],
                 "clusters": [],
                 "instances": [],
-                "databases": []
+                "databases": [],
+                "others": []
             }
         }
 
@@ -101,6 +102,7 @@ def get_project(manifest_file):
     manifest += [cluster for cluster in key["stack"]["clusters"]]
     manifest += [instance for instance in key["stack"]["instances"]]
     manifest += [database for database in key["stack"]["databases"]]
+    manifest += [other for other in key["stack"]["others"]]
 
     return manifest
 
@@ -351,7 +353,7 @@ def ssh_out_stream(hostname,
             break
         rl, wl, xl = select.select([channel], [], [], 0.0)
         if len(rl) > 0:
-            print(channel.recv(1028).decode("utf-8"))
+            print(channel.recv(1024).decode("utf-8"))
 
 
 def ssh_shell(hostname,
@@ -366,8 +368,8 @@ def ssh_shell(hostname,
         sock.connect((hostname, port))
     except Exception as e:
         print('*** Connect failed: ' + str(e))
-        traceback.print_exc()
-        sys.exit(1)
+        # traceback.print_exc()
+        exit(0)
 
     client = ssh_connect(
         hostname,
@@ -377,7 +379,8 @@ def ssh_shell(hostname,
         passphrase=passphrase,
         socket=sock)
     chan = client.open_session()
-    chan.get_pty()
+    w_size, h_size = terminal_size()
+    chan.get_pty(width=w_size, height=h_size)
     chan.invoke_shell()
     interactive.interactive_shell(chan)
     chan.close()
