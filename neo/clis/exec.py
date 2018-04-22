@@ -157,8 +157,8 @@ Run 'neo exec COMMAND --help' for more information on a command.
 
             if os.path.exists(private_key_file):
                 if not project_hostname:
-                    project_hostname = orch.get_metadata(project_name,"controller")
-                    project_user = orch.get_metadata(project_name,"user")
+                    project_hostname = orch.get_metadata(project_name, "controller")
+                    project_user = orch.get_metadata(project_name, "user")
 
                 do_ssh = True
                 print("Try to connect...", end="")
@@ -170,7 +170,7 @@ Run 'neo exec COMMAND --help' for more information on a command.
                         time.sleep(3)
                         do_ssh = False
                     else:
-                        print(".",end="")
+                        print(".", end="")
                         time.sleep(3)
                         do_ssh = True
 
