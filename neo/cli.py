@@ -13,6 +13,7 @@ Commands:
   ls          List all stack, network, machine
   rm          Delete stack, network, machine
   update      Update neo stack
+  exec        Remote your machine
 
 Run 'neo COMMAND --help' for more information on a command.
 """
