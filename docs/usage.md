@@ -8,7 +8,7 @@ $ neo --help
 
 ## Authentication
 
-Use `neo login` to log in. `neo logut` to do the opposite.
+Use `neo login` to log in. `neo logout` to do the opposite.
 
 ## Creation
 
