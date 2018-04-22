@@ -1,3 +1,8 @@
+## Deploy Kubernetes
+```bash
+$ neo create kubernetes
+```
+
 ## Create simple user
 In this guide, we will find out how to create a new user using Service Account mechanism of Kubernetes, grant this user admin permissions and log in to Dashboard using bearer token tied to this user.
 
