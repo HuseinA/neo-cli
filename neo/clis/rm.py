@@ -12,6 +12,7 @@ usage:
     rm [-f PATH]
     rm vm <VM_ID>
     rm network <NETWORK_ID>
+    rm stack <STACK_NAME>
 
 Remove Stack, VM, or Network
 
@@ -20,8 +21,9 @@ Options:
 -f PATH --file=PATH             Set neo manifest file
 
 Commands:
- vm VM_ID                       List all virtual machines
- network NETWORK_ID             List all network
+ vm VM_ID                       Remove virtual machines
+ network NETWORK_ID             Remove network
+ stack STACK_NAME               Remove stack
 
 Run 'neo rm COMMAND --help' for more information on a command.
 """
@@ -52,16 +54,38 @@ Run 'neo rm COMMAND --help' for more information on a command.
             exit()
 
         if self.args["network"]:
-            network_id = self.args["NETWORK_ID"]
+            network_id = self.args["<NETWORK_ID>"]
             try:
                 answer = ""
                 while answer not in ["y", "n"]:
                     answer = input(
-                        "Are you sure to delete this network [Y/N]? ").lower()
+                        "Are you sure to delete this network [Y/N]? ")
 
                 if answer == "y":
                     network_lib.do_delete(network_id)
                     utils.log_info("network has been deleted")
+            except Exception as e:
+                utils.log_err(e)
+            else:
+                pass
+            finally:
+                pass
+            exit()
+
+        if self.args["stack"]:
+            stack_name = self.args["<STACK_NAME>"]
+            try:
+                answer = ""
+                while answer not in ["y", "n"]:
+                    answer = input(
+                        "Are you sure to delete \"{}\" stack [Y/N]? ".format(stack_name))
+
+                if answer == "y":
+                    proj = orch.do_delete(stack_name)
+                    if proj:
+                        utils.log_info("Stack {} has been deleted".format(stack_name))
+                    else:
+                        utils.log_err("Stack {} is not exists".format(stack_name))
             except Exception as e:
                 utils.log_err(e)
             else:

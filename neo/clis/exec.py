@@ -1,12 +1,11 @@
 import os
 import time
 import socket
+import tempfile
 from .base import Base
-from neo.libs import network as network_lib
 from neo.libs import vm as vm_lib
-from neo.libs import utils, image
+from neo.libs import utils
 from neo.libs import orchestration as orch
-from tabulate import tabulate
 
 
 class Exec(Base):
@@ -15,7 +14,6 @@ usage:
         exec [-f PATH]
         exec ssh <USER@HOSTS>
         exec vm <VM_ID>
-        exec stack <STACK_NAME>
 
 Remote service for stack controller, virtual machine, or ssh machine
 
@@ -27,7 +25,6 @@ Options:
 Commands:
   vm <VM_ID>                          Remote to Virtual Machine
   stack <STACK_NAME>                  Remote to stack controller
-  ssh <USER@HOSTS>                    Use ssh to remote machines
 
 Run 'neo exec COMMAND --help' for more information on a command.
 """
@@ -51,11 +48,50 @@ Run 'neo exec COMMAND --help' for more information on a command.
             Remote VM over SSH
         """
         if self.args["vm"]:
-            vm_id = self.args["VM_ID"]
+            vm_id = self.args["<VM_ID>"]
             """
                 cek vm metadata from stack
             """
-            print(vm_id)
+            utils.log_info("Check your key pairs")
+            vm_detail = vm_lib.detail(vm_id).to_dict()
+            key_pair_temp = tempfile.NamedTemporaryFile(delete=True)
+
+            try:
+                key_name = vm_detail["key_name"]
+                out = orch.get_private_key(key_name)
+                if out:
+                    with open(key_pair_temp.name, 'w') as pkey:
+                        pkey.write(out)
+                        os.chmod(key_pair_temp.name, 0o600)
+                        utils.log_info("Done...")
+                else:
+                    utils.log_err("Can't find key pairs on your Virtual Machine!")
+                    exit()
+
+            except Exception as e:
+                utils.log_err("Can't find key pairs on your Virtual Machine!")
+                exit()
+
+            # Address
+            addr = list()
+            addr_objs = utils.get_index(vm_detail["addresses"])
+            if len(addr_objs) > 0:
+                for addr_obj in addr_objs:
+                    for addr_ip in vm_detail["addresses"][addr_obj]:
+                        if addr_ip["OS-EXT-IPS:type"] == "floating":
+                            addr_meta = addr_ip["addr"]
+                            addr.append(addr_meta)
+
+            if not (len(addr) > 0):
+                utils.log_err("Can't find floating IP Address!")
+                exit()
+
+            user = ""
+            while user == "":
+                user = input(
+                    "Username : ")
+
+            utils.ssh_shell(addr[0], user, key_file=key_pair_temp.name)
             exit(0)
 
         """
@@ -105,7 +141,7 @@ Run 'neo exec COMMAND --help' for more information on a command.
                     project_name))
                 wait_key = True
                 while wait_key:
-                    out = orch.get_private_key(project_name)
+                    out = orch.get_pkey_from_stack(project_name)
                     if out:
                         with open(private_key_file, "w") as pkey:
                             pkey.write(out)
@@ -121,7 +157,7 @@ Run 'neo exec COMMAND --help' for more information on a command.
                     project_user = orch.get_metadata(project_name,"user")
 
                 do_ssh = True
-                print("Try to connect...",end="")
+                print("Try to connect...", end="")
                 while do_ssh:
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     result = sock.connect_ex((project_hostname, 22))

@@ -220,7 +220,7 @@ def get_stack(stack_name):
 #
 #     return private_key
 
-def get_private_key(stack_name):
+def get_pkey_from_stack(stack_name):
     heat = get_heat_client()
     private_key = None
     try:
@@ -232,12 +232,23 @@ def get_private_key(stack_name):
     return private_key
 
 
-def get_metadata(stack_name,meta):
+def get_private_key(key_stack_name):
+    heat = get_heat_client()
+    private_key = None
+    try:
+        private_key = heat.stacks.output_show(key_stack_name, "private_key")["output"]["output_value"]
+    except Exception as e:
+        pass
+
+    return private_key
+
+
+def get_metadata(stack_name, meta):
     heat = get_heat_client()
     hostname = None
     try:
         hostname = heat.stacks.output_show(stack_name, meta)["output"]["output_value"]
-    except:
+    except Exception as e:
         pass
 
     return hostname
