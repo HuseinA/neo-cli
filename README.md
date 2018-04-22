@@ -17,3 +17,11 @@ pip3 install -U neo-cli
 ## Links
 
 - [Documentation](docs/index.md)
+
+
+## Contributors
+
+- [anak10thn](https://github.com/anak10thn)
+- [dark-reiser](https://github.com/dark-reiser)
+- [ovryenni](https://github.com/ovryenni)
+- [azzamsa](http://github.com/azzamsa/)
