@@ -1,5 +1,6 @@
 import os
 import time
+import socket
 from .base import Base
 from neo.libs import network as network_lib
 from neo.libs import vm as vm_lib
@@ -120,12 +121,17 @@ Run 'neo exec COMMAND --help' for more information on a command.
                     project_user = orch.get_metadata(project_name,"user")
 
                 do_ssh = True
+                print("Try to connect...",end="")
                 while do_ssh:
-                    try:
-                        utils.ssh_shell(project_hostname, project_user, key_file=private_key_file)
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    result = sock.connect_ex((project_hostname, 22))
+                    if result == 0:
+                        print("\nSuccess...")
+                        time.sleep(3)
                         do_ssh = False
-                    except:
-                        quetion = utils.question("Try again? ")
-                        if not quetion:
-                            do_ssh = False
-                        pass
+                    else:
+                        print(".",end="")
+                        time.sleep(3)
+                        do_ssh = True
+
+                utils.ssh_shell(project_hostname, project_user, key_file=private_key_file)

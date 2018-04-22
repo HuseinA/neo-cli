@@ -48,7 +48,7 @@ def get_stack():
                 "values": d_stack
             },
         ]
-        stack = utils.prompt_generator("Stack list", f_stack)
+        stack = utils.prompt_generator("", f_stack)
         return stack[f_stack[0]["key"]]
     except:
         return None
@@ -65,7 +65,7 @@ def get_project(templates):
                 "values": d_template
             },
         ]
-        template = utils.prompt_generator("Select Templates:", f_template)
+        template = utils.prompt_generator("Select Templates ", f_template)
         return template[f_template[0]["key"]]
     except:
         return None

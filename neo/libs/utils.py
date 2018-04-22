@@ -484,10 +484,10 @@ def form_generator(form_title, fields):
 
 
 def prompt_generator(form_title, fields):
-    # if os.name == 'nt':
-    #     os.system('cls')
-    # else:
-    #     os.system('clear')
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
 
     print(form_title)
 
