@@ -8,14 +8,14 @@ from neo.libs import utils
 from neo.libs import orchestration as orch
 
 
-class Exec(Base):
+class Attach(Base):
     """
 usage:
-        exec [-f PATH]
-        exec ssh <USER@HOSTS>
-        exec vm <VM_ID>
+        attach [-f PATH]
+        attach ssh <USER@HOSTS>
+        attach vm <VM_ID>
 
-Remote service for stack controller, virtual machine, or ssh machine
+Attach local standard input, output, and error streams to a running machine
 
 Options:
 -h --help                             Print usage
@@ -23,10 +23,10 @@ Options:
 -k KEY_FILE --key=KEY_FILE            Setup keyfile to ssh service
 
 Commands:
-  vm <VM_ID>                          Remote to Virtual Machine
-  stack <STACK_NAME>                  Remote to stack controller
+  vm <VM_ID>                          Attach to Virtual Machine
+  ssh <USER@HOSTS>                    Attach to machine by ssh
 
-Run 'neo exec COMMAND --help' for more information on a command.
+Run 'neo attach COMMAND --help' for more information on a command.
 """
 
     def execute(self):
