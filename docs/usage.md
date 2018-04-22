@@ -61,3 +61,22 @@ It will delete your stack, network and machine
 $ neo update
 ```
 Use `update` to see your changes.
+
+## Attach
+
+Attach local standard input, output, and error streams to a running
+stack or virtual machine
+
+
+``` bash
+$ neo attach vm
+```
+
+`neo attach` will read neo.yml configuration automatically if you
+didn't pass the <id> of your vm.
+
+You can also specify your running vm id manually with
+
+``` bash
+$ neo attach vm <your-vm-id>
+```
