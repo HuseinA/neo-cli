@@ -86,11 +86,15 @@ Run 'neo exec COMMAND --help' for more information on a command.
                 utils.log_err("Can't find floating IP Address!")
                 exit()
 
-            user = ""
-            while user == "":
-                user = input(
-                    "Username : ")
+            utils.log_info("Check username")
+            user = orch.get_metadata(vm_detail["name"], "user")
+            if not user:
+                user = ""
+                while user == "":
+                    user = input(
+                        "Username : ")
 
+            utils.log_info("Login with {}".format(user))
             utils.ssh_shell(addr[0], user, key_file=key_pair_temp.name)
             exit(0)
 
