@@ -2,37 +2,41 @@ import os
 import time
 import socket
 import tempfile
+import subprocess
 from .base import Base
 from neo.libs import vm as vm_lib
 from neo.libs import utils
 from neo.libs import orchestration as orch
 
 
-class Exec(Base):
+class Attach(Base):
     """
 usage:
-        exec [-f PATH]
-        exec ssh <USER@HOSTS>
-        exec vm <VM_ID>
+        attach [-f PATH] [-c COMMAND] [-t HOST]
+        attach ssh <USER@HOSTS>
+        attach vm <VM_ID>
 
-Remote service for stack controller, virtual machine, or ssh machine
+Attach local standard input, output, and error streams to a running machine
 
 Options:
+-c COMMAND --command=COMMAND          Send command
 -h --help                             Print usage
 -f PATH --file=PATH                   Set neo manifest file
 -k KEY_FILE --key=KEY_FILE            Setup keyfile to ssh service
+-t HOST --tunneling=HOST              SSH Tunneling (eg. -t 8001:127.0.0.1:8001)
 
 Commands:
-  vm <VM_ID>                          Remote to Virtual Machine
-  stack <STACK_NAME>                  Remote to stack controller
+  vm <VM_ID>                          Attach to Virtual Machine
+  ssh <USER@HOSTS>                    Attach to machine by ssh
 
-Run 'neo exec COMMAND --help' for more information on a command.
+Run 'neo attach COMMAND --help' for more information on a command.
 """
 
     def execute(self):
         """
             Remote client over SSH
         """
+
         if self.args["ssh"]:
             cridential = self.args["<USER@HOSTS>"].split("@")
             if len(cridential) != 2:
@@ -153,7 +157,15 @@ Run 'neo exec COMMAND --help' for more information on a command.
                             utils.log_info("Done...")
                         wait_key = False
                     else:
-                        time.sleep(5)
+                        pkeys = orch.get_private_key(project_name)
+                        if pkeys:
+                            with open(private_key_file, "w") as pkey:
+                                pkey.write(pkeys)
+                                os.chmod(private_key_file, 0o600)
+                                utils.log_info("Done...")
+                            wait_key = False
+                        else:
+                            time.sleep(5)
 
             if os.path.exists(private_key_file):
                 if not project_hostname:
@@ -174,4 +186,20 @@ Run 'neo exec COMMAND --help' for more information on a command.
                         time.sleep(3)
                         do_ssh = True
 
-                utils.ssh_shell(project_hostname, project_user, key_file=private_key_file)
+                if self.args["--command"]:
+                    try:
+                        utils.ssh_out_stream(project_hostname, project_user, self.args["--command"], key_file=private_key_file)
+                    except KeyboardInterrupt:
+                        exit()
+                elif self.args["--tunneling"]:
+                    try:
+                        tunnel_args = " ".join(["-L {}".format(t_arg) for t_arg in self.args["--tunneling"].split(",")])
+                        commands = "ssh -i {} {} {}@{}".format(private_key_file, tunnel_args, project_user, project_hostname).split(" ")
+                        subprocess.call(commands)
+                    except KeyboardInterrupt:
+                        exit()
+                else:
+                    try:
+                        utils.ssh_shell(project_hostname, project_user, key_file=private_key_file)
+                    except KeyboardInterrupt:
+                        exit()
