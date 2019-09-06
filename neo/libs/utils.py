@@ -114,7 +114,6 @@ def template_git(url, dir):
             shutil.rmtree(dir)
 
         git.Repo.clone_from(url, dir)
-        # real_url = os.path.dirname(os.path.realpath(dir))
 
         return True
 
@@ -338,7 +337,6 @@ def ssh_out_stream(
         hostname, user, password=password, key_file=key_file, passphrase=passphrase
     )
     channel = client.get_transport().open_session()
-    # log_info("Connected...")
     # Example : "tailf -n 50 /tmp/deploy.log"
     channel.exec_command(commands)
     while True:
@@ -356,7 +354,6 @@ def ssh_shell(hostname, user, password=None, port=22, key_file=None, passphrase=
         sock.connect((hostname, port))
     except Exception as e:
         print("*** Connect failed: " + str(e))
-        # traceback.print_exc()
         exit(0)
 
     client = ssh_connect(
