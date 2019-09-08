@@ -82,7 +82,7 @@ def get_key(manifest_file):
         }
 
         neo_templates = codecs.open(manifest_file, encoding="utf-8", errors="strict")
-        manifest["data"] = yaml.load(neo_templates.read())
+        manifest["data"] = yaml.safe_load(neo_templates.read())
         manifest_data = eval(str(manifest["data"]))
         del manifest_data["deploy"]
         for (key, value) in manifest_data.items():
@@ -152,7 +152,7 @@ def repodata():
 def yaml_parser(file):
     with open(file, "r") as stream:
         try:
-            data = yaml.load(stream)
+            data = yaml.safe_load(stream)
             return data
 
         except yaml.YAMLError as exc:
