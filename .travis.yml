@@ -8,7 +8,7 @@ install:
 - pip freeze --local
 script:
 - black --check .
-- pytest --cov=neo -vv -s
+- pytest -vv -s
 deploy:
   provider: pypi
   user: Your username
