@@ -1,6 +1,7 @@
 clusters:
   kubernetes:
     url: "git+https://github.com/BiznetGIO/neo-heat-kubernetes.git"
+    branch: "master"
     description: "Template that installs a kubernetes cluster resource group and a master node."
     parameters:
       image:
@@ -45,6 +46,7 @@ clusters:
 networks:
   private:
     url: "git+https://github.com/BiznetGIO/neo-heat-private-network.git"
+    branch: "master"
     description: "Private network setup"
     lists: "get_network"
     parameters:
@@ -65,6 +67,7 @@ networks:
 instances:
   vm:
     url: "git+https://github.com/BiznetGIO/neo-heat-vm.git"
+    branch: "master"
     description: "Create Virtual Machine"
     parameters:
       private_network:
@@ -93,6 +96,7 @@ instances:
         description: Set username to virtual machine.
   plesk:
     url: "git+https://github.com/BiznetGIO/neo-heat-plesk.git"
+    branch: "master"
     description: "Create Plesk Bundle"
     parameters:
       private_network:
@@ -145,5 +149,6 @@ instances:
 others:
     key-pairs:
       url: "git+https://github.com/BiznetGIO/neo-heat-key-pairs.git"
+      branch: "master"
       description: "Key pairs setup"
       lists: "get_key"

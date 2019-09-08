@@ -107,13 +107,13 @@ def get_project(manifest_file):
     return manifest
 
 
-def template_git(url, dir):
+def template_git(url, dir, branch):
     try:
         chk_repo = os.path.isdir(dir)
         if chk_repo:
             shutil.rmtree(dir)
 
-        git.Repo.clone_from(url, dir)
+        git.Repo.clone_from(url, dir, b=branch)
 
         return True
 
@@ -121,11 +121,11 @@ def template_git(url, dir):
         return False
 
 
-def template_url(url, dest):
+def template_url(url, dest, branch):
     url_split = url.split("+")
     url_type = url_split[0]
     url_val = url_split[1]
-    return {"git": template_git(url_val, dest), "local": url_val}[url_type]
+    return {"git": template_git(url_val, dest, branch), "local": url_val}[url_type]
 
 
 def mkdir(dir):
