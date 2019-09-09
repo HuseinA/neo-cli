@@ -107,7 +107,7 @@ def get_project(manifest_file):
     return manifest
 
 
-def template_git(url, dir, branch):
+def template_git(url, dir, branch="master"):
     try:
         chk_repo = os.path.isdir(dir)
         if chk_repo:
