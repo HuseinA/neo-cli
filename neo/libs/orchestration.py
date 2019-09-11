@@ -31,6 +31,7 @@ def initialize(manifest_fie):
 
             try:
                 url = utils.repodata()[stack][template]["url"]
+                branch = utils.repodata()[stack][template]["branch"]
             except:
                 utils.log_err("template {} is not exist!".format(template))
                 exit()
@@ -38,7 +39,7 @@ def initialize(manifest_fie):
             dest = "{}/{}/{}".format(key["deploy_dir"], stack, project)
             utils.log_info("Build {} {} template".format(project, stack))
 
-            if not utils.template_url(url, dest):
+            if not utils.template_url(url, dest, branch):
                 utils.log_err("Check your internet connection!")
                 exit()
 

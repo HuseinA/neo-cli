@@ -82,7 +82,7 @@ def get_key(manifest_file):
         }
 
         neo_templates = codecs.open(manifest_file, encoding="utf-8", errors="strict")
-        manifest["data"] = yaml.load(neo_templates.read())
+        manifest["data"] = yaml.safe_load(neo_templates.read())
         manifest_data = eval(str(manifest["data"]))
         del manifest_data["deploy"]
         for (key, value) in manifest_data.items():
@@ -107,13 +107,13 @@ def get_project(manifest_file):
     return manifest
 
 
-def template_git(url, dir):
+def template_git(url, dir, branch="master"):
     try:
         chk_repo = os.path.isdir(dir)
         if chk_repo:
             shutil.rmtree(dir)
 
-        git.Repo.clone_from(url, dir)
+        git.Repo.clone_from(url, dir, b=branch)
 
         return True
 
@@ -121,11 +121,11 @@ def template_git(url, dir):
         return False
 
 
-def template_url(url, dest):
+def template_url(url, dest, branch):
     url_split = url.split("+")
     url_type = url_split[0]
     url_val = url_split[1]
-    return {"git": template_git(url_val, dest), "local": url_val}[url_type]
+    return {"git": template_git(url_val, dest, branch), "local": url_val}[url_type]
 
 
 def mkdir(dir):
@@ -152,7 +152,7 @@ def repodata():
 def yaml_parser(file):
     with open(file, "r") as stream:
         try:
-            data = yaml.load(stream)
+            data = yaml.safe_load(stream)
             return data
 
         except yaml.YAMLError as exc:
