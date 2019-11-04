@@ -38,15 +38,16 @@ class TestLambdafunc:
         monkeypatch.setattr(neo.libs.utils, "mkdir", self.fake_mkdir)
         assert ["instances"] == utils.initdir(manifest.fake_manifest)
 
-    def fake_template_git(self, url, dir):
-        return url, dir
+    def fake_template_git(self, url, dir_, branch):
+        return url, dir_, branch
 
     def test_template_url_local(self, monkeypatch):
         monkeypatch.setattr(neo.libs.utils, "template_git", self.fake_template_git)
         url = "local+https://github.com/BiznetGIO/neo-heat-kubernetes.git"
         dest = "path/to/deploy/dir"
+        branch = "0.1.17"
         assert (
-            utils.template_url(url, dest)
+            utils.template_url(url, dest, branch)
             == "https://github.com/BiznetGIO/neo-heat-kubernetes.git"
         )
 
@@ -54,9 +55,11 @@ class TestLambdafunc:
         monkeypatch.setattr(neo.libs.utils, "template_git", self.fake_template_git)
         url = "git+https://github.com/BiznetGIO/neo-heat-kubernetes.git"
         dest = "path/to/deploy/dir"
-        assert utils.template_url(url, dest) == (
+        branch = "0.1.17"
+        assert utils.template_url(url, dest, branch) == (
             "https://github.com/BiznetGIO/neo-heat-kubernetes.git",
             "path/to/deploy/dir",
+            "0.1.17",
         )
 
     def test_get_project(self):
