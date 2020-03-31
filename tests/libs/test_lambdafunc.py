@@ -1,4 +1,5 @@
 import mock
+import os
 
 import neo.libs.vm
 import neo.libs.image
@@ -14,7 +15,8 @@ class TestLambdafunc:
         """
         flavor_file = "/tmp/.flavor.yml"
         fs.create_file(flavor_file, contents=flavor_contents)
-        assert lambdafunc.get_flavor() == ["SX48.8", "SX48.12"]
+        if os.name != "nt":
+            assert lambdafunc.get_flavor() == ["SX48.8", "SX48.12"]
 
     def fake_get_flavor(self, session=None):
         flavor_1 = mock.Mock()
@@ -25,7 +27,8 @@ class TestLambdafunc:
 
     def test_get_flavor_no_file(self, monkeypatch):
         monkeypatch.setattr(neo.libs.vm, "get_flavor", self.fake_get_flavor)
-        assert lambdafunc.get_flavor() == ["SS2.1", "SL24.8"]
+        if os.name != "nt":
+            assert lambdafunc.get_flavor() == ["SS2.1", "SL24.8"]
 
     # img
 
@@ -36,7 +39,8 @@ class TestLambdafunc:
         """
         img_file = "/tmp/.images.yml"
         fs.create_file(img_file, contents=img_contents)
-        assert lambdafunc.get_img() == ["CentOS 6.9", "Debian 9"]
+        if os.name != "nt":
+            assert lambdafunc.get_img() == ["CentOS 6.9", "Debian 9"]
 
     def fake_get_img_list(self, session=None):
         img_1 = mock.Mock()
@@ -47,7 +51,8 @@ class TestLambdafunc:
 
     def test_get_img_no_file(self, monkeypatch):
         monkeypatch.setattr(neo.libs.image, "get_list", self.fake_get_img_list)
-        assert lambdafunc.get_img() == ["Fedora 26", "Fedora 25"]
+        if os.name != "nt":
+            assert lambdafunc.get_img() == ["Fedora 26", "Fedora 25"]
 
     # key
 

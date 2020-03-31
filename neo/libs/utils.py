@@ -11,8 +11,6 @@ import logging
 import scp
 import sys
 import errno
-import fcntl
-import termios
 import struct
 import socket
 
@@ -198,6 +196,9 @@ def list_dir(dirname):
 
 
 def terminal_size():
+    if os.name != "nt":
+        import fcntl
+        import termios
     th, tw, hp, wp = struct.unpack(
         "HHHH", fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack("HHHH", 0, 0, 0, 0))
     )
