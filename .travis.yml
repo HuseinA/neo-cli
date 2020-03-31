@@ -1,26 +1,33 @@
 language: python
 jobs:
   include:
-    - name: "Python 3.7.1 on Xenial Linux"
-      python: 3.7
-    - name: "Python 3.7.2 on macOS"
-      os: osx
-      osx_image: xcode11
-      language: shell       # 'language: python' is an error on Travis CI macOS
-      before_install: python3 --version ; pip3 --version ; sw_vers
-    - name: "Python 3.7.4 on Windows"
-      os: windows           # Windows 10.0.17134 N/A Build 17134
-      language: shell       # 'language: python' is an error on Travis CI Windows
-      before_install:
-        - choco install python --version 3.7
-        - python -m pip install --upgrade pip
-        - pip3 install windows-curses==2.1.0
-      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+  - name: Python 3.7.1 on Xenial Linux
+    python: 3.7
+  - name: Python 3.7.2 on macOS
+    os: osx
+    osx_image: xcode11
+    language: shell
+    before_install: python3 --version ; pip3 --version ; sw_vers
+  - name: Python 3.7.4 on Windows
+    os: windows
+    language: shell
+    before_install:
+    - choco install python --version 3.7
+    - python -m pip install --upgrade pip
+    - pip3 install windows-curses==2.1.0
+    env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 install:
-    - pip3 install -r requirements.txt
-    - pip3 install -e .
-    - pip3 install -r requirements-dev.txt
-    - pip3 freeze --local
+- pip3 install -r requirements.txt
+- pip3 install -e .
+- pip3 install -r requirements-dev.txt
+- pip3 freeze --local
 script:
-    - black --check .
-    - pytest -vv -s
+- black --check .
+- pytest -vv -s
+deploy:
+  provider: pypi
+  user: biznetgio
+  password:
+    secure: KunfPX3D2yzIY6im/Km4R9A7JcNdIDAtwuTyJkuflmPiDqTPPdmV0qMLG/xG+hxlqWSIpl/UEoFGQ3ZNh5+LMOKeMfzULu5xX+1o8Vhy5etU58lQqELg+x092clcwfahilkST8QoHtaD0IJMCVusNqUHEehXE4sbP0IUSfrVl++kS1A9/KgUfVNqwUh9ioFjo5Omxo08e3XYU9ORQABO6ErI14DHvs3/NFWg7xrU/xIR9gpfy+s0xam8LW2db1EncC713b/4Lks34xhnnuGW3/SRDX9V8yojShqkqvGBDfkINeSaou/ULQf+4CVqrQx7rhfHPWQmTYJe2QLBmlxWWHr4esA2BRhVRWF+vy1ZUl+VlNU0mhj0da4VOK/HoH/lGz8Nw9GsIyRY7GyTNUVW0V5quVoxiMWTQbbsgJJZJoZ50Ad7HwUy8HJaCbcvsMrdtB2ECbjRDQtEeK0Oj6HIpEt1HjsE+iS6dEIJ3ffq+kUHfnP/wCtt6Yq5syyCw0mLPP6EPe4KBgVaGHu5rjT25QSkWQBk345eFf8TTgMb3VhNUghU5dmhYGmjQsL5Ok1bNLPsjf7bmbTlKtl69ZNANjuNUXJcHI2Y9Y0puVUTjgbTk055O1W/tc4kYWjaB6zeIEwvXCgHj5ezrO0m5MD7IsnI0o7mnuoLM9nu7Ns+SXo=
+  on:
+    tags: true
