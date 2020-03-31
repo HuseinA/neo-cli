@@ -15,7 +15,7 @@ scp==0.10.2
 npyscreen==4.10.5
 docopt==0.6.2
 python-dotenv==0.8.2
-GitPython==2.1.8
+GitPython==3.1.0
 python_keystoneclient==3.17.0
 python_novaclient==10.1.0
 PyYAML==5.1.2

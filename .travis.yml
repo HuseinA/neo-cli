@@ -1,11 +1,26 @@
 language: python
-python:
-    - '3.6'
+jobs:
+  include:
+    - name: "Python 3.7.1 on Xenial Linux"
+      python: 3.7
+    - name: "Python 3.7.2 on macOS"
+      os: osx
+      osx_image: xcode11
+      language: shell       # 'language: python' is an error on Travis CI macOS
+      before_install: python3 --version ; pip3 --version ; sw_vers
+    - name: "Python 3.7.4 on Windows"
+      os: windows           # Windows 10.0.17134 N/A Build 17134
+      language: shell       # 'language: python' is an error on Travis CI Windows
+      before_install:
+        - choco install python --version 3.7
+        - python -m pip install --upgrade pip
+        - pip3 install windows-curses==2.1.0
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 install:
-    - pip install -r requirements.txt
-    - pip install -e .
-    - pip install -r requirements-dev.txt
-    - pip freeze --local
+    - pip3 install -r requirements.txt
+    - pip3 install -e .
+    - pip3 install -r requirements-dev.txt
+    - pip3 freeze --local
 script:
     - black --check .
     - pytest -vv -s
