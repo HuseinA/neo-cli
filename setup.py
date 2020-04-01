@@ -1,66 +1,41 @@
-"""Packaging settings."""
+import re
 
-from codecs import open
-from os.path import abspath, dirname, join
-from subprocess import call
-from setuptools import Command, find_packages, setup
-from neo import __version__
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
-this_dir = abspath(dirname(__file__))
-with open(join(this_dir, "README.md"), encoding="utf-8") as file:
-    long_description = file.read()
+with open("neo/__init__.py", "r", encoding="utf8") as f:
+    version = re.search(r'__version__ = "(.*?)"', f.read()).group(1)
 
-with open(join(this_dir, "requirements.txt"), encoding="utf-8") as fp:
-    install_requires = fp.read()
+with open("README.rst", "rb") as f:
+    readme = f.read().decode("utf-8")
 
-
-class RunTests(Command):
-    """Run all tests."""
-
-    description = "run tests"
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        """Run all tests!"""
-        errno = call(["pytest", "--cov=neo", "-vv"])
-        raise SystemExit(errno)
-
+with open("requirements.txt", "rb") as f:
+    requirements = f.read().decode("utf-8")
 
 setup(
     name="neo-cli",
-    version=__version__,
-    description="A Neo command line tools",
-    long_description=long_description,
-    url="https://github.com/BiznetGIO",
+    version=version,
+    description="A NEO command line tools",
+    long_description=readme,
+    long_description_content_type="text/x-rst",
+    url="https://github.com/BiznetGIO/neo-cli",
     author="BiznetGio",
     author_email="support@biznetgio.com",
-    license="MIT",
+    license="MIT license",
     classifiers=[
         "Intended Audience :: Developers",
         "Topic :: Utilities",
-        "License :: Public Domain",
+        "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.2",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
     ],
     keywords="cli",
     include_package_data=True,
-    packages=find_packages(exclude=["docs", "tests*"]),
-    install_requires=install_requires,
-    extras_require={
-        "test": ["coverage", "pytest", "pytest-cov", "pytest-ordering", "testfixtures"]
-    },
+    packages=["neo"],
+    install_requires=requirements,
     entry_points={"console_scripts": ["neo=neo.cli:main"]},
-    cmdclass={"test": RunTests},
 )
