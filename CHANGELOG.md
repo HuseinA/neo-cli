@@ -1,5 +1,9 @@
 ## Unreleased
 
+## 0.8.2 (2020-03-31)
+
+- Add partial windows support
+- Fix incompatible git API changes
 
 ## 0.8.0 (2019-11-04)
 
