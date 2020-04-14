@@ -11,7 +11,7 @@
 
     <p align="center">
        <a href="#readme">
-          <img alt="neo-cli in action" src="docs/img/neo.gif" width="500">
+          <img alt="neo-cli in action" src="https://github.com/BiznetGIO/neo-cli/blob/master/docs/img/neo.gif" width="500">
        </a>
     </p>
 
@@ -105,7 +105,7 @@ Creating stuffs
 Project information
 -------------------
 
-* `Documentation <https://neo-cli.readthedocs.io/en/stable/index.html>`_
-* `Contributing <https://neo-cli.readthedocs.io/en/stable/project/contributing.html>`_
-* `Changelog <https://neo-cli.readthedocs.io/en/stable/project/changelog.html>`_
-* `License <https://neo-cli.readthedocs.io/en/stable/project/license.html>`_
+* `Documentation <https://neo-cli.readthedocs.io/en/latest/index.html>`_
+* `Contributing <https://neo-cli.readthedocs.io/en/latest/project/contributing.html>`_
+* `Changelog <https://neo-cli.readthedocs.io/en/latest/project/changelog.html>`_
+* `License <https://neo-cli.readthedocs.io/en/latest/project/license.html>`_
