@@ -152,7 +152,7 @@ def do_login(
             utils.log_info("Login Success")
         else:
             print("Doing fresh login. You don't have old login data")
-            do_fresh_login()
+            do_fresh_login(auth_url, user_domain_name)
     except Exception as e:
         utils.log_err(e)
         utils.log_err("Login Failed")
