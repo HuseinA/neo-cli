@@ -9,32 +9,37 @@ class Login(Base):
     Usage:
         login
         login -D | --describe
-        login [-u USERNAME] [-k KEYSTONE-URL] [-d DOMAIN]
+        login [-u USERNAME] [-r REGION]
 
 
     Options:
     -h --help                                       Print usage
     -D --describe                                   Set your desired domain URL
-    -k KEYSTONE-URL --keystone-url=KEYSTONE-URL     Set your desired keystone URL
-    -d DOMAIN --domain=DOMAIN                       Set your desired domain URL
+    -r REGION --region=REGION                       Pick your region, to get list of region use neo --region      
     -u USERNAME --username=USERNAME                 Set your desired username
     """
 
     def execute(self):
         if self.args["--describe"]:
             envs = login_lib.get_env_values()
-            env_data = [
-                [
-                    envs["username"],
-                    envs["auth_url"],
-                    envs["project_id"],
-                    envs["user_domain_name"],
+            try:
+                env_data = [
+                    [
+                        envs["username"],
+                        envs["auth_url"],
+                        envs["project_id"],
+                        envs["user_domain_name"],
+                    ]
                 ]
-            ]
+            except:
+                exit()
+
+
             if len(env_data) == 0:
                 utils.log_err("No Data...")
                 print(self.__doc__)
                 exit()
+                
             print(
                 tabulate(
                     env_data,
@@ -43,8 +48,13 @@ class Login(Base):
                 )
             )
             exit()
+        
+        if not self.args["--region"] and not self.args["--username"]:
+            login_lib.do_login2()
+        else:
+            login_lib.do_login2(username=self.args["--username"], region=self.args["--region"])
 
-        if self.args["--domain"] and self.args["--keystone-url"]:
+"""         if self.args["--domain"] and self.args["--keystone-url"]:
             try:
                 username = self.args["--username"]
                 auth_url = self.args["--keystone-url"]
@@ -55,7 +65,5 @@ class Login(Base):
                     username=username,
                 )
             except Exception as e:
-                utils.log_err(e)
+                utils.log_err(e) """
 
-        if not self.args["--domain"] and not self.args["--keystone-url"]:
-            login_lib.do_login()
