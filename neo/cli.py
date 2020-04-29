@@ -44,7 +44,9 @@ def main():
         try:
             module = getattr(neo.clis, command_name)
             neo.clis = getmembers(module, isclass)
-            command_class = [command[1] for command in neo.clis if command[0] != "Base"][0]
+            command_class = [
+                command[1] for command in neo.clis if command[0] != "Base"
+            ][0]
         except AttributeError as e:
             print(e)
             raise DocoptExit()
@@ -52,7 +54,7 @@ def main():
         command = command_class(options, args)
         command.execute()
     except DocoptExit:
-      print(__doc__)
+        print(__doc__)
 
 
 if __name__ == "__main__":

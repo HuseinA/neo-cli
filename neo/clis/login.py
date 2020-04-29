@@ -34,12 +34,11 @@ class Login(Base):
             except:
                 exit()
 
-
             if len(env_data) == 0:
                 utils.log_err("No Data...")
                 print(self.__doc__)
                 exit()
-                
+
             print(
                 tabulate(
                     env_data,
@@ -48,11 +47,14 @@ class Login(Base):
                 )
             )
             exit()
-        
+
         if not self.args["--region"] and not self.args["--username"]:
             login_lib.do_login2()
         else:
-            login_lib.do_login2(username=self.args["--username"], region=self.args["--region"])
+            login_lib.do_login2(
+                username=self.args["--username"], region=self.args["--region"]
+            )
+
 
 """         if self.args["--domain"] and self.args["--keystone-url"]:
             try:
@@ -66,4 +68,3 @@ class Login(Base):
                 )
             except Exception as e:
                 utils.log_err(e) """
-

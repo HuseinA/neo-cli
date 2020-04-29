@@ -10,7 +10,10 @@ from neo.libs import utils
 GLOBAL_HOME = os.path.expanduser("~")
 GLOBAL_AUTH_URL = "https://keystone.wjv-1.neo.id:443/v3"
 GLOBAL_USER_DOMAIN_NAME = "neo.id"
-GLOBAL_REGION = {"wjv":"https://keystone.wjv-1.neo.id:443/v3", "jkt":"https://keystone.jkt-1.neo.id:443/v3"}
+GLOBAL_REGION = {
+    "wjv": "https://keystone.wjv-1.neo.id:443/v3",
+    "jkt": "https://keystone.jkt-1.neo.id:443/v3",
+}
 DEFAULT_REGION = "wjv"
 
 
@@ -20,6 +23,7 @@ def get_username():
 
 def get_password():
     return getpass.getpass("password: ")
+
 
 def get_region():
     region = input("region (Default: wjv): ")
@@ -31,7 +35,6 @@ def get_region():
     except KeyError:
         utils.log_err("Region not found, please check your region input")
         exit()
-        
 
 
 def generate_session(username, password, auth_url, user_domain_name, project_id=None):
@@ -82,7 +85,7 @@ def get_env_values():
         neo_env["project_id"] = os.environ.get("OS_PROJECT_ID")
         neo_env["user_domain_name"] = os.environ.get("OS_USER_DOMAIN_NAME")
         return neo_env
-    #else:
+    # else:
     #    utils.log_err("Can't find NEO environment configuration. Maybe you haven't login yet?")
 
 
@@ -107,19 +110,18 @@ def get_project_id(username, password, auth_url, user_domain_name):
         user_domain_name=user_domain_name,
     )
     keystone = client.Client(session=sess)
-    #project_list = [t.id for t in keystone.projects.list(user=sess.get_user_id())]
+    # project_list = [t.id for t in keystone.projects.list(user=sess.get_user_id())]
     enabled_project = []
     for project in keystone.projects.list(user=sess.get_user_id()):
         if project.enabled == True:
             enabled_project.append(project.id)
-    
+
     if len(enabled_project) > 1:
         utils.log_err("Something wrong with your project. Please contact Support")
         exit()
     else:
         return enabled_project[0]
 
-    
 
 """ def do_fresh_login(auth_url=GLOBAL_AUTH_URL, user_domain_name=GLOBAL_USER_DOMAIN_NAME):
     try:
@@ -142,7 +144,8 @@ def get_project_id(username, password, auth_url, user_domain_name):
         utils.log_err(e)
         utils.log_err("Login Failed") """
 
-def do_fresh_login(username = None, auth_url=None):
+
+def do_fresh_login(username=None, auth_url=None):
     if username != None:
         username = username
         password = get_password()
@@ -154,9 +157,11 @@ def do_fresh_login(username = None, auth_url=None):
             auth_url = auth_url
         else:
             auth_url = get_region()
-    
+
     try:
-        project_id = get_project_id(username, password, auth_url, GLOBAL_USER_DOMAIN_NAME)
+        project_id = get_project_id(
+            username, password, auth_url, GLOBAL_USER_DOMAIN_NAME
+        )
         generate_session(
             auth_url=auth_url,
             username=username,
@@ -165,13 +170,13 @@ def do_fresh_login(username = None, auth_url=None):
             user_domain_name=GLOBAL_USER_DOMAIN_NAME,
         )
         # generate fresh neo.env
-        create_env_file(username, password, project_id, auth_url, GLOBAL_USER_DOMAIN_NAME)
+        create_env_file(
+            username, password, project_id, auth_url, GLOBAL_USER_DOMAIN_NAME
+        )
         utils.log_info("Login Success")
     except Exception as e:
         utils.log_err(e)
         utils.log_err("Login Failed")
-
-    
 
 
 def regenerate_sess():
@@ -210,19 +215,22 @@ def regenerate_sess():
         utils.log_err("Login Failed")
         return False """
 
+
 def login_check(username=None, region=None):
     try:
         print("Connecting to region " + region + " at " + GLOBAL_REGION[region])
         auth_url = GLOBAL_REGION[region]
         old_env_data = get_env_values()
         if check_env() and check_session():
-            if is_current_env(auth_url, GLOBAL_USER_DOMAIN_NAME, username=old_env_data["username"]):
+            if is_current_env(
+                auth_url, GLOBAL_USER_DOMAIN_NAME, username=old_env_data["username"]
+            ):
                 print("You have logged in")
                 print("You are already logged.")
                 print("  use 'neo login -D' to see your current account")
-            else: 
+            else:
                 print("You have switch user or region, doing relogin")
-                do_fresh_login(username,auth_url)
+                do_fresh_login(username, auth_url)
         elif check_env() and not check_session():
             print("Retrieving old login data ...")
             regenerate_sess()
@@ -230,10 +238,11 @@ def login_check(username=None, region=None):
         else:
             do_fresh_login(username, auth_url)
     except KeyError as e:
-        utils.log_err("Region " + str(e) + " is  not found")    
+        utils.log_err("Region " + str(e) + " is  not found")
+
 
 def do_login2(username=None, region=None):
-    if region == None and username == None: 
+    if region == None and username == None:
         do_fresh_login()
     elif region == None or username == None:
         if username == None:
@@ -242,6 +251,7 @@ def do_login2(username=None, region=None):
             login_check(username, DEFAULT_REGION)
     else:
         login_check(username, region)
+
 
 def do_logout():
     if check_session():
