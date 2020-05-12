@@ -20,4 +20,3 @@ python_keystoneclient==3.17.0
 python_novaclient==10.1.0
 python-cinderclient==6.0.0
 PyYAML==5.1.2
-good-toml==0.11
