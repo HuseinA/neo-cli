@@ -23,14 +23,17 @@ class Login(Base):
         if self.args["--describe"]:
             envs = login_lib.get_env_values()
             try:
-                env_data = [
-                    [
-                        envs["username"],
-                        envs["auth_url"],
-                        envs["project_id"],
-                        envs["user_domain_name"],
+                env_data = []
+                for env in envs:
+                    data = [
+                        env["username"],
+                        env["region"],
+                        env["auth_url"],
+                        env["project_id"],
+                        env["user_domain_name"],
+                        env["status"],
                     ]
-                ]
+                    env_data.append(data)
             except:
                 exit()
 
@@ -42,29 +45,22 @@ class Login(Base):
             print(
                 tabulate(
                     env_data,
-                    headers=["Username", "Auth URL", "Project ID", "Domain Name"],
+                    headers=[
+                        "Username",
+                        "Region",
+                        "Auth URL",
+                        "Project ID",
+                        "Domain Name",
+                        "Status",
+                    ],
                     tablefmt="grid",
                 )
             )
             exit()
 
         if not self.args["--region"] and not self.args["--username"]:
-            login_lib.do_login2()
+            login_lib.do_login()
         else:
-            login_lib.do_login2(
+            login_lib.do_login(
                 username=self.args["--username"], region=self.args["--region"]
             )
-
-
-"""         if self.args["--domain"] and self.args["--keystone-url"]:
-            try:
-                username = self.args["--username"]
-                auth_url = self.args["--keystone-url"]
-                user_domain_name = self.args["--domain"]
-                login_lib.do_login(
-                    auth_url=auth_url,
-                    user_domain_name=user_domain_name,
-                    username=username,
-                )
-            except Exception as e:
-                utils.log_err(e) """
