@@ -285,7 +285,11 @@ def login_check(username=None, region=None):
 
 def do_login(username=None, region=None):
     if region == None and username == None:
-        do_fresh_login()
+        if check_env() and check_session():
+            print("You have logged in")
+            print("  use 'neo login -D' to see your current account")
+        else:
+            do_fresh_login()
     elif region == None or username == None:
         if username == None:
             utils.log_err("You need to specify a username")
