@@ -202,9 +202,11 @@ def get_project_id(username, password, auth_url, user_domain_name):
         if project.enabled == True:
             enabled_project.append(project.id)
 
-    if len(enabled_project) > 1:
+    if len(enabled_project) == 0:
         utils.log_err("Something wrong with your project. Please contact Support")
         exit()
+    elif len(enabled_project) > 1:
+        return enabled_project[0]
     else:
         return enabled_project[0]
 
