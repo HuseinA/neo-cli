@@ -9,6 +9,7 @@ from neo.libs import utils
 import toml
 from tempfile import gettempdir
 from shutil import rmtree
+from tabulate import tabulate
 
 
 GLOBAL_HOME = os.path.expanduser("~")
@@ -30,6 +31,7 @@ def get_password():
 
 
 def get_region():
+    get_region_list()
     region = input("region (Default: wjv): ")
     try:
         if region == "":
@@ -39,6 +41,16 @@ def get_region():
     except KeyError:
         utils.log_err("Region not found, please check your region input")
         exit()
+
+
+def get_region_list():
+    print(
+        tabulate(
+            [[key, value] for key, value in GLOBAL_REGION.items()],
+            headers=["Region", "Auth URL"],
+            tablefmt="fancy_grid",
+        )
+    )
 
 
 def get_region_toml(username, password, auth_url):
