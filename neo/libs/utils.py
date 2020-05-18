@@ -20,6 +20,8 @@ from binascii import hexlify
 from prompt_toolkit import prompt
 from prompt_toolkit.contrib.completers import WordCompleter
 from neo.libs import interactive_ssh_utils as interactive
+from tempfile import gettempdir
+from shutil import rmtree
 
 
 def do_deploy_dir(manifest_file):
@@ -517,3 +519,13 @@ def isfloat(number):
         return False
     else:
         return True
+
+
+def tmp_dir():
+    temp = os.path.join(gettempdir(), ".neo")
+    os.makedirs(temp, exist_ok=True)
+    return temp
+
+
+def del_tmp_dir(path):
+    rmtree(path, ignore_errors=True)

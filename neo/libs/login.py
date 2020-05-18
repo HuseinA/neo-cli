@@ -1,14 +1,12 @@
 import getpass
 import os
 import dill
+import toml
 from dotenv import load_dotenv
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from keystoneclient.v3 import client
 from neo.libs import utils
-import toml
-from tempfile import gettempdir
-from shutil import rmtree
 from tabulate import tabulate
 
 
@@ -33,6 +31,7 @@ def get_password():
 def get_region():
     get_region_list()
     region = input("region (Default: wjv): ")
+    region = region.lower()
     try:
         if region == "":
             region = "wjv"
@@ -56,14 +55,14 @@ def get_region_list():
 def get_region_toml(username, password, auth_url):
     config = ""
     for key, value in GLOBAL_REGION.items():
+        status = "ACTIVE" if value == auth_url else "IDLE"
+        project_id = get_project_id(username, password, value, GLOBAL_USER_DOMAIN_NAME)
         config += "\n"
         config += "[region.{}]\n".format(key)
         config += "os_auth_url = '{}'\n".format(value)
-        config += "os_project_id = '{}'\n".format(
-            get_project_id(username, password, value, GLOBAL_USER_DOMAIN_NAME)
-        )
+        config += "os_project_id = '{}'\n".format(project_id)
         config += "os_user_domain_name = '{}'\n".format(GLOBAL_USER_DOMAIN_NAME)
-        config += "status = '{}'\n".format("ACTIVE" if value == auth_url else "IDLE")
+        config += "status = '{}'\n".format(status)
         config += "\n"
     return config
 
@@ -82,19 +81,19 @@ def generate_session(username, password, auth_url, user_domain_name, project_id=
     return sess
 
 
-def _get_toml_config():
+def get_toml_config():
     return os.path.join(GLOBAL_HOME, ".neo", "config.toml")
 
 
 def check_env():
-    return os.path.isfile(_get_toml_config())
+    return os.path.isfile(get_toml_config())
 
 
 def create_env_file(username, password, auth_url):
     config_list = """
                 [auth]
-                os_username = '%s'
-                os_password = '%s'
+                os_username = "%s"
+                os_password = "%s"
                 %s
             """ % (
         username,
@@ -103,7 +102,7 @@ def create_env_file(username, password, auth_url):
     )
     configs = toml.loads(config_list)
     try:
-        config_toml = _get_toml_config()
+        config_toml = get_toml_config()
         os.makedirs(os.path.dirname(config_toml), exist_ok=True)
         env_file = open(config_toml, "w+")
         env_file.write(toml.dumps(configs))
@@ -116,7 +115,7 @@ def create_env_file(username, password, auth_url):
 
 def load_env_file():
     if check_env():
-        return toml.load(_get_toml_config())
+        return toml.load(get_toml_config())
 
 
 def get_env_values():
@@ -124,11 +123,11 @@ def get_env_values():
         env_toml = load_env_file()
         neo_env = []
         for key, value in GLOBAL_REGION.items():
+            default = "(default)" if key == DEFAULT_REGION else ""
             list_env = {
                 "username": env_toml.get("auth").get("os_username"),
                 "password": env_toml.get("auth").get("os_password"),
-                "region": key
-                + "{}".format("(default)" if key == DEFAULT_REGION else ""),
+                "region": key + default,
                 "auth_url": env_toml.get("region").get(key).get("os_auth_url"),
                 "project_id": env_toml.get("region").get(key).get("os_project_id"),
                 "user_domain_name": env_toml.get("region")
@@ -298,31 +297,22 @@ def do_login(username=None, region=None):
         elif region == None:
             login_check(username, DEFAULT_REGION)
     else:
+        region = region.lower()
         login_check(username, region)
 
 
 def do_logout():
-    temp = tmp_dir()
+    temp = utils.tmp_dir()
     if check_session():
         home = os.path.expanduser("~")
         os.remove("{}/session.pkl".format(temp))
-        del_tmp_dir(tmp_dir())
-        os.remove(_get_toml_config())
+        utils.del_tmp_dir(temp)
+        os.remove(get_toml_config())
         utils.log_info("Logout Success")
 
 
-def tmp_dir():
-    temp = os.path.join(gettempdir(), ".neo")
-    os.makedirs(temp, exist_ok=True)
-    return temp
-
-
-def del_tmp_dir(path):
-    rmtree(path, ignore_errors=True)
-
-
 def dump_session(sess):
-    temp = tmp_dir()
+    temp = utils.tmp_dir()
     try:
         with open("{}/session.pkl".format(temp), "wb") as f:
             dill.dump(sess, f)
@@ -331,7 +321,7 @@ def dump_session(sess):
 
 
 def load_dumped_session():
-    temp = tmp_dir()
+    temp = utils.tmp_dir()
     try:
         if check_session():
             sess = None
@@ -348,5 +338,5 @@ def load_dumped_session():
 
 
 def check_session():
-    temp = tmp_dir()
+    temp = utils.tmp_dir()
     return os.path.isfile("{}/session.pkl".format(temp))
