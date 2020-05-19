@@ -1,6 +1,12 @@
 Unreleased
 ==========
 
+0.9.0 (2020-05-19)
+==================
+
+- Add multiple region login
+- Fix login session on windows
+
 0.8.2 (2020-03-31)
 ==================
 
