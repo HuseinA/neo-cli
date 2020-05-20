@@ -58,11 +58,11 @@ def get_region_toml(username, password, auth_url):
         status = "ACTIVE" if value == auth_url else "IDLE"
         project_id = get_project_id(username, password, value, GLOBAL_USER_DOMAIN_NAME)
         config += "\n"
-        config += "[region.{}]\n".format(key)
-        config += "os_auth_url = '{}'\n".format(value)
-        config += "os_project_id = '{}'\n".format(project_id)
-        config += "os_user_domain_name = '{}'\n".format(GLOBAL_USER_DOMAIN_NAME)
-        config += "status = '{}'\n".format(status)
+        config += f"[region.{key}]\n"
+        config += f"os_auth_url = '{value}'\n"
+        config += f"os_project_id = '{project_id}'\n"
+        config += f"os_user_domain_name = '{GLOBAL_USER_DOMAIN_NAME}'\n"
+        config += f"status = '{status}'\n"
         config += "\n"
     return config
 
@@ -90,16 +90,13 @@ def check_env():
 
 
 def create_env_file(username, password, auth_url):
-    config_list = """
-                [auth]
-                os_username = "%s"
-                os_password = "%s"
-                %s
-            """ % (
-        username,
-        password,
-        get_region_toml(username, password, auth_url),
-    )
+    region = get_region_toml(username, password, auth_url)
+    config_list = f"""
+                   [auth]
+                   os_username = "{username}"
+                   os_password = "{password}"
+                   {region} 
+                """
     configs = toml.loads(config_list)
     try:
         config_toml = get_toml_config()
