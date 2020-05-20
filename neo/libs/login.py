@@ -302,7 +302,7 @@ def do_logout():
     temp = utils.tmp_dir()
     if check_session():
         home = os.path.expanduser("~")
-        os.remove("{}/session.pkl".format(temp))
+        os.remove(os.path.join(temp, "session.pkl"))
         utils.del_tmp_dir(temp)
         os.remove(get_toml_config())
         utils.log_info("Logout Success")
