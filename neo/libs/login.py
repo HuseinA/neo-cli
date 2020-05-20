@@ -29,7 +29,7 @@ def get_password():
 
 
 def get_region():
-    get_region_list()
+    show_region_list()
     region = input("region (Default: wjv): ")
     region = region.lower()
     try:
@@ -42,7 +42,7 @@ def get_region():
         exit()
 
 
-def get_region_list():
+def show_region_list():
     print(
         tabulate(
             [[key, value] for key, value in GLOBAL_REGION.items()],
