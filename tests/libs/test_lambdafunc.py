@@ -5,6 +5,7 @@ import neo.libs.vm
 import neo.libs.image
 import neo.libs.network
 from neo.libs import lambdafunc
+from neo.libs import utils
 
 
 class TestLambdafunc:
@@ -13,7 +14,8 @@ class TestLambdafunc:
         - SX48.8
         - SX48.12
         """
-        flavor_file = "/tmp/.flavor.yml"
+        temp = utils.tmp_dir()
+        flavor_file = os.path.join(temp, "flavor.yml")
         fs.create_file(flavor_file, contents=flavor_contents)
         if os.name != "nt":
             assert lambdafunc.get_flavor() == ["SX48.8", "SX48.12"]
@@ -37,7 +39,8 @@ class TestLambdafunc:
         - CentOS 6.9
         - Debian 9
         """
-        img_file = "/tmp/.images.yml"
+        temp = utils.tmp_dir()
+        img_file = os.path.join(temp, "images.yml")
         fs.create_file(img_file, contents=img_contents)
         if os.name != "nt":
             assert lambdafunc.get_img() == ["CentOS 6.9", "Debian 9"]

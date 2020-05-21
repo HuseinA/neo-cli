@@ -3,7 +3,8 @@ from neo.libs import utils, image, vm, network
 
 
 def get_flavor():
-    flavor_file = "/tmp/.flavor.yml"
+    temp = utils.tmp_dir()
+    flavor_file = os.path.join(temp, "flavor.yml")
     if os.path.exists(flavor_file):
         flavors = utils.yaml_parser(flavor_file)["data"]
     else:
@@ -15,7 +16,8 @@ def get_flavor():
 
 
 def get_img():
-    img_file = "/tmp/.images.yml"
+    temp = utils.tmp_dir()
+    img_file = os.path.join(temp, "images.yml")
     if os.path.exists(img_file):
         imgs = utils.yaml_parser(img_file)["data"]
     else:
