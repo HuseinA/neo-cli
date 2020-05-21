@@ -45,7 +45,7 @@ def get_region():
 def show_region_list():
     print(
         tabulate(
-            [[key, value] for key, value in GLOBAL_REGION.items()],
+            [[region, GLOBAL_REGION[region]] for region in GLOBAL_REGION],
             headers=["Region", "Auth URL"],
             tablefmt="fancy_grid",
         )
@@ -54,16 +54,19 @@ def show_region_list():
 
 def get_region_toml(username, password, auth_url):
     config = ""
-    for key, value in GLOBAL_REGION.items():
-        status = "ACTIVE" if value == auth_url else "IDLE"
-        project_id = get_project_id(username, password, value, GLOBAL_USER_DOMAIN_NAME)
-        config += "\n"
-        config += f"[region.{key}]\n"
-        config += f"os_auth_url = '{value}'\n"
-        config += f"os_project_id = '{project_id}'\n"
-        config += f"os_user_domain_name = '{GLOBAL_USER_DOMAIN_NAME}'\n"
-        config += f"status = '{status}'\n"
-        config += "\n"
+    for region in GLOBAL_REGION:
+        status = "ACTIVE" if GLOBAL_REGION[region] == auth_url else "IDLE"
+        project_id = get_project_id(
+            username, password, GLOBAL_REGION[region], GLOBAL_USER_DOMAIN_NAME
+        )
+        region_list = f"""
+                        [region.{region}]
+                        os_auth_url = "{GLOBAL_REGION[region]}"
+                        os_project_id = "{project_id}"
+                        os_user_domain_name = "{GLOBAL_USER_DOMAIN_NAME}"
+                        status = "{status}"
+                    """
+        config += region_list
     return config
 
 
@@ -119,18 +122,18 @@ def get_env_values():
     if check_env():
         env_toml = load_env_file()
         neo_env = []
-        for key, value in GLOBAL_REGION.items():
-            default = "(default)" if key == DEFAULT_REGION else ""
+        for region in GLOBAL_REGION:
+            default = "(default)" if region == DEFAULT_REGION else ""
             list_env = {
                 "username": env_toml.get("auth").get("os_username"),
                 "password": env_toml.get("auth").get("os_password"),
-                "region": key + default,
-                "auth_url": env_toml.get("region").get(key).get("os_auth_url"),
-                "project_id": env_toml.get("region").get(key).get("os_project_id"),
+                "region": region + default,
+                "auth_url": env_toml.get("region").get(region).get("os_auth_url"),
+                "project_id": env_toml.get("region").get(region).get("os_project_id"),
                 "user_domain_name": env_toml.get("region")
-                .get(key)
+                .get(region)
                 .get("os_user_domain_name"),
-                "status": env_toml.get("region").get(key).get("status"),
+                "status": env_toml.get("region").get(region).get("status"),
             }
             neo_env.append(list_env)
         return neo_env
@@ -157,18 +160,18 @@ def get_active_env():
     if check_env():
         env_toml = load_env_file()
         active_env = {}
-        for key, value in GLOBAL_REGION.items():
-            if (env_toml.get("region").get(key).get("status")) == "ACTIVE":
+        for region in GLOBAL_REGION:
+            if (env_toml.get("region").get(region).get("status")) == "ACTIVE":
                 active_env["username"] = env_toml.get("auth").get("os_username")
                 active_env["password"] = env_toml.get("auth").get("os_password")
                 active_env["auth_url"] = (
-                    env_toml.get("region").get(key).get("os_auth_url")
+                    env_toml.get("region").get(region).get("os_auth_url")
                 )
                 active_env["project_id"] = (
-                    env_toml.get("region").get(key).get("os_project_id")
+                    env_toml.get("region").get(region).get("os_project_id")
                 )
                 active_env["user_domain_name"] = (
-                    env_toml.get("region").get(key).get("os_user_domain_name")
+                    env_toml.get("region").get(region).get("os_user_domain_name")
                 )
                 dump_session(
                     generate_session(
