@@ -24,6 +24,7 @@ install:
 script:
 - black --check .
 - pytest -vv -s
+before_deploy: awk 'NR>18' README.rst > README.tmp && mv README.tmp README.rst
 deploy:
   provider: pypi
   user: biznetgio
@@ -32,3 +33,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+    condition: $TRAVIS_OS_NAME = linux
