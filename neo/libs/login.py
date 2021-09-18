@@ -18,11 +18,11 @@ GLOBAL_REGION = {
     "jkt-1": "https://keystone.jkt-1.neo.id:443/v3",
     "wjv-2": "https://keystone.wjv-2.neo.id:13000/v3",
     "jkt-2": "https://keystone.jkt-2.neo.id:13000/v3",
-    "btn-1": "https://keystone.btn-1.neo.id:13000/v3"
-
+    "btn-1": "https://keystone.btn-1.neo.id:13000/v3",
 }
 
 DEFAULT_REGION = "wjv-1"
+
 
 def get_username():
     return input("username: ")
@@ -31,15 +31,17 @@ def get_username():
 def get_password():
     return getpass.getpass("password: ")
 
+
 def get_trans_region_name(region):
-    region_name  = {
-            "wjv-1": "West Java 1",
-            "jkt-1": "Jakarta 1",
-            "wjv-2": "West Java 2",
-            "jkt-2": "Jakarta 2",
-            "btn-1": "Banten"
-        }
+    region_name = {
+        "wjv-1": "West Java 1",
+        "jkt-1": "Jakarta 1",
+        "wjv-2": "West Java 2",
+        "jkt-2": "Jakarta 2",
+        "btn-1": "Banten",
+    }
     return region_name[region]
+
 
 def get_region():
     show_region_list()
@@ -58,7 +60,7 @@ def get_region():
 def show_region_list():
     print(
         tabulate(
-            [[region,GLOBAL_REGION[region]] for region in GLOBAL_REGION],
+            [[region, GLOBAL_REGION[region]] for region in GLOBAL_REGION],
             headers=["Region", "Auth URL"],
             tablefmt="fancy_grid",
         )
@@ -297,7 +299,7 @@ def login_check(username=None, region=None):
         utils.log_err("Region " + str(e) + " is  not found")
 
 
-def do_login(username=None, region=None):                 
+def do_login(username=None, region=None):
     if region == None and username == None:
         if check_env() and check_session():
             print("You have logged in")
