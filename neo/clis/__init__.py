@@ -7,3 +7,5 @@ from .update import *
 from .rm import *
 from .attach import *
 from .log import *
+from .vm import *
+
