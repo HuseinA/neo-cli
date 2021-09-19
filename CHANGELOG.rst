@@ -1,6 +1,13 @@
 Unreleased
 ==========
 
+0.9.3 (2021-09-19)
+==================
+
+- Add region wjv2, jkt2, btn1
+- Add vm cli to manage instances
+
+
 0.9.0 (2020-05-19)
 ==================
 
