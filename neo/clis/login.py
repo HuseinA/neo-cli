@@ -28,6 +28,7 @@ class Login(Base):
                     data = [
                         env["username"],
                         env["region"],
+                        env["name"],
                         env["auth_url"],
                         env["project_id"],
                         env["user_domain_name"],
@@ -48,6 +49,7 @@ class Login(Base):
                     headers=[
                         "Username",
                         "Region",
+                        "Name",
                         "Auth URL",
                         "Project ID",
                         "Domain Name",

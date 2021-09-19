@@ -15,6 +15,7 @@ Commands:
   ls          List all stack, network, machine
   rm          Delete stack, network, machine
   update      Update neo stack
+  vm          Manage instances machine 
 
 Run 'neo COMMAND --help' for more information on a command.
 """
