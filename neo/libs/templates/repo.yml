@@ -145,6 +145,43 @@ instances:
         label: plesk package
         description: plesk package
         default: wordpress
+  cpanel:
+      url: "git+https://github.com/BiznetGIO/neo-heat-cpanel.git"
+      branch: "master"
+      description: "Create cpanel Bundle"
+      parameters:
+        private_network:
+          type: string
+          label: Private Network
+          description: Setup Private network
+          dependences: "repo:networks.private"
+        image:
+          type: string
+          label: Image name or ID
+          description: Image to be used for server. Please use an Centos based image.
+        flavor:
+          type: string
+          label: Flavor
+          description: Type of instance (flavor) to be used on the compute instance.
+          dependences: "func:get_flavor"
+        username:
+          type: string
+          label: Set Username
+          description: Set username to virtual machine and cpanel bundle.
+        password:
+          type: string
+          label: Set password cpanel
+          description: Set password to cpanel bundle.
+        neo_type:
+          type: json
+          label: neo type metadata
+          description: Set neo type metadata
+          default: {"metadata": {"neo_type": "PLSK"}}
+        floating_desc:
+          type: string
+          label: neo description for floating ip
+          description: neo description for floating ip
+          default: PLSK
 
 others:
     key-pairs:
