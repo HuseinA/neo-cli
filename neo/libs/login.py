@@ -11,17 +11,15 @@ from tabulate import tabulate
 
 
 GLOBAL_HOME = os.path.expanduser("~")
-GLOBAL_AUTH_URL = "https://keystone.wjv-1.neo.id:443/v3"
+GLOBAL_AUTH_URL = "https://keystone.wjv-2.neo.id:13000/v3"
 GLOBAL_USER_DOMAIN_NAME = "neo.id"
 GLOBAL_REGION = {
-    "wjv-1": "https://keystone.wjv-1.neo.id:443/v3",
-    "jkt-1": "https://keystone.jkt-1.neo.id:443/v3",
     "wjv-2": "https://keystone.wjv-2.neo.id:13000/v3",
     "jkt-2": "https://keystone.jkt-2.neo.id:13000/v3",
     "btn-1": "https://keystone.btn-1.neo.id:13000/v3",
 }
 
-DEFAULT_REGION = "wjv-1"
+DEFAULT_REGION = "wjv-2"
 
 
 def get_username():
@@ -34,8 +32,6 @@ def get_password():
 
 def get_trans_region_name(region):
     region_name = {
-        "wjv-1": "West Java 1",
-        "jkt-1": "Jakarta 1",
         "wjv-2": "West Java 2",
         "jkt-2": "Jakarta 2",
         "btn-1": "Banten",
@@ -45,11 +41,11 @@ def get_trans_region_name(region):
 
 def get_region():
     show_region_list()
-    region = input("region (Default: wjv-1): ")
+    region = input("region (Default: wjv-2): ")
     region = region.lower()
     try:
         if region == "":
-            region = "wjv-1"
+            region = "wjv-2"
         # print(GLOBAL_REGION[region])
         return GLOBAL_REGION[region]
     except KeyError:
