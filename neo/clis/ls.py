@@ -141,12 +141,12 @@ Run 'neo ls COMMAND --help' for more information on a command.
 
         if self.args["--outputs"]:
             stack_name = self.args["--outputs"].split(".")
-            if len(stack_name) is 1:
+            if len(stack_name) == 1:
                 for meta in orch.get_meta_stack(stack_name[0]):
                     print(meta["output_key"], " :")
                     print(meta["output_value"])
                     print("")
-            if len(stack_name) is 2:
+            if len(stack_name) == 2:
                 print(orch.get_metadata(stack_name[0], stack_name[1]))
             exit()
 
