@@ -11,7 +11,7 @@ from tabulate import tabulate
 
 
 GLOBAL_HOME = os.path.expanduser("~")
-GLOBAL_AUTH_URL = "https://keystone.wjv-1.neo.id:443/v3"
+GLOBAL_AUTH_URL = "https://keystone.wjv-2.neo.id:13000/v3"
 GLOBAL_USER_DOMAIN_NAME = "neo.id"
 GLOBAL_REGION = {
     "wjv-2": "https://keystone.wjv-2.neo.id:13000/v3",
@@ -19,7 +19,7 @@ GLOBAL_REGION = {
     "btn-1": "https://keystone.btn-1.neo.id:13000/v3",
 }
 
-DEFAULT_REGION = "wjv-1"
+DEFAULT_REGION = "wjv-2"
 
 
 def get_username():
