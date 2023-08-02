@@ -21,6 +21,7 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
+        sed -i '1,19d' README.rst
         python setup.py sdist bdist_wheel
         twine upload dist/*
 
