@@ -1,6 +1,18 @@
 Unreleased
 ==========
 
+0.9.5 (2023-08-02)
+==================
+
+- remove region wjv-1, jkt-1
+- change is function to ==
+
+0.9.4 (2023-02-16)
+==================
+
+- Add heat template for cpanel
+- Update requirements package
+
 0.9.3 (2021-09-19)
 ==================
 
